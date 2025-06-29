@@ -1,0 +1,34 @@
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  template: `
+    <div class="counter-container">
+      <h2>Counter: {{ count }}</h2>
+      <button (click)="increment()">Increase</button>
+    </div>
+  `,
+  styles: [`
+    .counter-container {
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    .button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .h2 {
+      color: #333;
+    }
+  `]
+})
+export class AppComponent {
+  count: number = 0;
+
+  increment(): void {
+    this.count=this.count+1;
+  }
+}
