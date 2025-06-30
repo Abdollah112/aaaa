@@ -14,7 +14,7 @@ import static org.antlr.v4.runtime.CharStreams.fromFileName;
 public class Main {
     public static void main(String[] args) {
         try {
-            String source = "Files/error3.txt";
+            String source = "Files/Text File.txt";
             CharStream cs = fromFileName(source);
             AngularComponentLexer lexer = new AngularComponentLexer(cs);
             CommonTokenStream token = new CommonTokenStream(lexer);
