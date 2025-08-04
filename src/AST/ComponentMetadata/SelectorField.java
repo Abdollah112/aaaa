@@ -1,9 +1,12 @@
 package src.AST.ComponentMetadata;
 
-public class SelectorField implements ComponentMetadata {
+import src.AST.Node;
+
+public class SelectorField extends Node implements ComponentMetadata {
         private final String selector;
 
-        public SelectorField(String selector) {
+    public SelectorField(int lineNumber, int columnNumber, String selector) {
+        super(lineNumber, columnNumber);
             this.selector = selector;
         }
 

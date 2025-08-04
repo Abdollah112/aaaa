@@ -5,7 +5,8 @@ import java.util.List;
 public class ArgumentList extends Expression {
     private final List<Expression> expressions;
 
-    public ArgumentList(List<Expression> expressions) {
+    public ArgumentList(int lineNumber, int columnNumber, List<Expression> expressions) {
+        super(lineNumber, columnNumber);
         this.expressions = expressions;
     }
 

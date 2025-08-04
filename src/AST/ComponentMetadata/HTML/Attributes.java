@@ -1,6 +1,8 @@
 package src.AST.ComponentMetadata.HTML;
 
-public class Attributes {
+import src.AST.Node;
+
+public class Attributes extends Node {
     private String htmlString;
     private String htmlName;
     // For standard HTML attributes like 'src', 'class', etc.
@@ -9,6 +11,9 @@ public class Attributes {
     private String event;
     // For Angular event bindings, like '(click)'
 
+    public Attributes(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
 
     public String getHtmlString() {
         return htmlString;

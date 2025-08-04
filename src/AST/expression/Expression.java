@@ -1,10 +1,11 @@
 package src.AST.expression;
 
+import src.AST.Node;
 import src.AST.classes.ClassMember;
 
 import java.util.List;
 
-public class Expression {
+public class Expression extends Node {
     public PrimaryExpression primaryExpression;
     public Expression left;
     public Expression right;
@@ -12,9 +13,10 @@ public class Expression {
     public String id;
     public ArgumentList argumentList;
 
-
-    public Expression() {
+    public Expression(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
     }
+
     public void setPrimaryExpression(PrimaryExpression primaryExpression) {
         this.primaryExpression = primaryExpression;
     }

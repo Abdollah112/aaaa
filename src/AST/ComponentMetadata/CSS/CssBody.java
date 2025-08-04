@@ -1,7 +1,13 @@
 package src.AST.ComponentMetadata.CSS;
 
-public class CssBody {
-    CssObjects cssObjects ;
+import src.AST.Node;
+
+public class CssBody extends Node {
+    CssObjects cssObjects;
+
+    public CssBody(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
 
     public CssObjects getCssObjects() {
         return cssObjects;
@@ -17,5 +23,4 @@ public class CssBody {
                 "\n=" + cssObjects +
                 "\n}";
     }
-
 }

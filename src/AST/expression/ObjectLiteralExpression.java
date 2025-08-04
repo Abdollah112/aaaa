@@ -5,7 +5,8 @@ import java.util.List;
 public class ObjectLiteralExpression extends Expression {
     private final List<ObjectLiteralPair> objectLiteralPairs;
 
-    public ObjectLiteralExpression(List<ObjectLiteralPair> objectLiteralPairs) {
+    public ObjectLiteralExpression(int lineNumber, int columnNumber, List<ObjectLiteralPair> objectLiteralPairs) {
+        super(lineNumber, columnNumber);
         this.objectLiteralPairs = objectLiteralPairs;
     }
 

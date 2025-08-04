@@ -5,13 +5,14 @@ import src.AST.classes.ClassDecl;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Program {
+public class Program extends Node {
     public List<ImportStmt> imports;
     public List<InterfaceDecl> interfaces;
     public List<ComponentDecorator> components;
     public List<ClassDecl> classes;
 
-    public Program() {
+    public Program(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
         this.imports = new ArrayList<>();
         this.interfaces = new ArrayList<>();
         this.components = new ArrayList<>();

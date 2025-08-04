@@ -1,13 +1,14 @@
 package src.AST.ComponentMetadata;
 
+import src.AST.Node;
 import src.AST.ComponentMetadata.CSS.CssBody;
-
 import java.util.List;
 
-public class StylesField implements ComponentMetadata {
-    CssBody cssBody ;
+public class StylesField extends Node implements ComponentMetadata {
+    CssBody cssBody;
 
-    public StylesField(CssBody cssBody) {
+    public StylesField(int lineNumber, int columnNumber, CssBody cssBody) {
+        super(lineNumber, columnNumber);
         this.cssBody = cssBody;
     }
 

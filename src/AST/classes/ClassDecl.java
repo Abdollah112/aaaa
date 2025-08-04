@@ -1,15 +1,17 @@
 package src.AST.classes;
 
+import src.AST.Node;
 import java.util.List;
 
-public class ClassDecl {
+public class ClassDecl extends Node {
     private final boolean isExported;
     private final String name;
     private final String superClass;
     private final List<String> interfaces;
     private final List<ClassMember> members;
 
-    public ClassDecl(boolean isExported, String name, String superClass, List<String> interfaces, List<ClassMember> members) {
+    public ClassDecl(int lineNumber, int columnNumber, boolean isExported, String name, String superClass, List<String> interfaces, List<ClassMember> members) {
+        super(lineNumber, columnNumber);
         this.isExported = isExported;
         this.name = name;
         this.superClass = superClass;

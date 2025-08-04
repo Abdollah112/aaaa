@@ -4,7 +4,8 @@ public class IncrementExpression extends Expression {
     private Expression expression;
     private boolean isPostfix;
 
-    public IncrementExpression(Expression expression, boolean isPostfix) {
+    public IncrementExpression(int lineNumber, int columnNumber, Expression expression, boolean isPostfix) {
+        super(lineNumber, columnNumber);
         this.expression = expression;
         this.isPostfix = isPostfix;
     }

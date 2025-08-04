@@ -1,7 +1,13 @@
 package src.AST.ComponentMetadata.HTML;
 
-public class ClosingTag {
-    String NAME_HTML ;
+import src.AST.Node;
+
+public class ClosingTag extends Node {
+    String NAME_HTML;
+
+    public ClosingTag(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
 
     public String getNAME_HTML() {
         return NAME_HTML;

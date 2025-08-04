@@ -6,7 +6,8 @@ public class FunctionCallExpression extends Expression {
     private Expression function;
     private List<Expression> arguments;
 
-    public FunctionCallExpression(Expression function, List<Expression> arguments) {
+    public FunctionCallExpression(int lineNumber, int columnNumber, Expression function, List<Expression> arguments) {
+        super(lineNumber, columnNumber);
         this.function = function;
         this.arguments = arguments;
     }

@@ -16,6 +16,7 @@ import src.AST.classes.MethodDecl;
 import src.AST.expression.*;
 import src.AST.statement.ExpressionStatement;
 import src.AST.statement.Statement;
+import src.AST.statement.BlockStatement;
 import src.antlr4.AngularComponentLexer;
 import src.antlr4.AngularComponentParser;
 import src.antlr4.AngularComponentParserBaseVisitor;
@@ -35,7 +36,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitProgram(AngularComponentParser.ProgramContext ctx) {
-        Program program = new Program();
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        Program program = new Program(line, col);
 
         // Add all imports
         for (AngularComponentParser.ImportStmtContext importCtx : ctx.importStmt()) {
@@ -65,16 +68,20 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitImportStmt(AngularComponentParser.ImportStmtContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         String lib = ctx.ID().getText();
         String from = ctx.STRING().getText();
 
         // Remove surrounding quotes
         from = from.substring(1, from.length() - 1);
-        return new ImportStmt( lib , from) ;
+        return new ImportStmt(line, col, lib , from) ;
     }
 
     @Override
     public Object visitComponentDecorator(AngularComponentParser.ComponentDecoratorContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         String componentName = ctx.ID().getText();
 
         AngularComponentParser.ComponentMetadataContext metadataCtx = ctx.componentMetadata();
@@ -98,7 +105,7 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
             }
         }
 
-        return new ComponentDecorator(componentName, metadataList); }
+        return new ComponentDecorator(line, col, componentName, metadataList); }
 
     @Override
     public Object visitComponentMetadata(AngularComponentParser.ComponentMetadataContext ctx) {
@@ -107,15 +114,19 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitSelectorField(AngularComponentParser.SelectorFieldContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         String selectorValue = ctx.STRING().getText();
         selectorValue = selectorValue.substring(1, selectorValue.length() - 1);
 
-        return new SelectorField(selectorValue);
+        return new SelectorField(line, col, selectorValue);
     }
 
     @Override
     public Object visitTemplateField(AngularComponentParser.TemplateFieldContext ctx) {
-        TemplateField templateField = new TemplateField();
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        TemplateField templateField = new TemplateField(line, col);
         List<Element> elements = new ArrayList<>();
 
         for (AngularComponentParser.ElementContext elementCtx : ctx.element()) {
@@ -133,12 +144,16 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitStylesField(AngularComponentParser.StylesFieldContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         CssBody cssBody = (CssBody) visit(ctx.cssBody());
-        return new StylesField(cssBody);
+        return new StylesField(line, col, cssBody);
     }
 
     @Override
     public Object visitInterfaceDecl(AngularComponentParser.InterfaceDeclContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         String name = ctx.ID().getText();
         List<InterfaceField> fields = new ArrayList<>();
 
@@ -147,18 +162,22 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
             fields.add(field);
         }
 
-        return new InterfaceDecl(name, fields);
+        return new InterfaceDecl(line, col, name, fields);
     }
 
     @Override
     public Object visitInterfaceField(AngularComponentParser.InterfaceFieldContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         String fieldName = ctx.ID().getText();
         String fieldType = ctx.typeSpec().getText(); // crude example — improve later
-        return new InterfaceField(fieldName, fieldType);
+        return new InterfaceField(line, col, fieldName, fieldType);
     }
 
     @Override
     public Object visitClassDecl(AngularComponentParser.ClassDeclContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         boolean isExported = ctx.getChild(0).getText().equals("export");
         String className = ctx.ID(0).getText();
         String superClass = null;
@@ -192,7 +211,7 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
         SymbolTable.popScope();
         currentScope = SymbolTable.getCurrentScope();
 
-        return new ClassDecl(isExported, className, superClass, null, members);
+        return new ClassDecl(line, col, isExported, className, superClass, null, members);
     }
 
     @Override
@@ -202,6 +221,8 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitFieldDecl(AngularComponentParser.FieldDeclContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         String accessModifier = ctx.getChild(0) != null ? ctx.getChild(0).getText() : null;
         String name = ctx.ID().getText();
         String type = ctx.typeSpec().getText();
@@ -222,7 +243,7 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
             throw new RuntimeException("Duplicate field name '" + name + "'", ex);
         }
 
-        return new FieldDecl(accessModifier, name, type, isOptional, isRequired, initializer);
+        return new FieldDecl(line, col, accessModifier, name, type, isOptional, isRequired, initializer);
 
     }
 
@@ -235,6 +256,8 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitMethodDecl(AngularComponentParser.MethodDeclContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         String methodName = ctx.ID().getText();
         String returnType = ctx.typeSpec() != null ? ctx.typeSpec().getText() : "void";
 
@@ -258,7 +281,7 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
             currentScope = SymbolTable.getCurrentScope().getParent();
             SymbolTable.popScope();
 
-            return new MethodDecl(methodName, returnType, body);
+            return new MethodDecl(line, col, methodName, returnType, body);
 
         } catch (ItemAlreadyExistsException ex) {
             // Wrap checked exception to avoid throws declaration
@@ -335,10 +358,12 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitAdditiveExpression(AngularComponentParser.AdditiveExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         Expression left = (Expression) visit(ctx.expression(0));
         Expression right = (Expression) visit(ctx.expression(1));
         String operator = ctx.op.getText();
-        return new AdditiveExpression(left, right, operator);
+        return new AdditiveExpression(line, col, left, right, operator);
     }
 
     @Override
@@ -349,36 +374,45 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitAssignmentExpression(AngularComponentParser.AssignmentExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         Expression left = (Expression) visit(ctx.expression(0));
         Expression right = (Expression) visit(ctx.expression(1));
-        return new AssignmentExpression(left, right);
+        return new AssignmentExpression(line, col, left, right);
     }
 
     @Override
     public Object visitIncrementExpression(AngularComponentParser.IncrementExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         Expression expr = (Expression) visit(ctx.expression());
-        boolean isPostfix = ctx.Increment() != null &&
-                ctx.Increment().getText().equals("++");
-        return new IncrementExpression(expr, isPostfix);
+        boolean isPostfix = ctx.Increment() != null && ctx.Increment().getText().equals("++");
+        return new IncrementExpression(line, col, expr, isPostfix);
     }
 
     @Override
     public Object visitPropertyAccessExpression(AngularComponentParser.PropertyAccessExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         Expression object = (Expression) visit(ctx.expression());
         String property = ctx.ID().getText();
-        return new PropertyAccessExpression(object, property);
+        return new PropertyAccessExpression(line, col, object, property);
     }
 
     @Override
     public Object visitMultiplicativeExpression(AngularComponentParser.MultiplicativeExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         Expression left = (Expression) visit(ctx.expression(0));
         Expression right = (Expression) visit(ctx.expression(1));
         String operator = ctx.op.getText();
-        return new MultiplicativeExpression(left, right, operator);
+        return new MultiplicativeExpression(line, col, left, right, operator);
     }
 
     @Override
     public Object visitFunctionCallExpression(AngularComponentParser.FunctionCallExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         Expression function = (Expression) visit(ctx.expression());
         List<Expression> arguments = new ArrayList<>();
         if (ctx.argumentList() != null) {
@@ -386,25 +420,28 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
                 arguments.add((Expression) visit(argCtx));
             }
         }
-        return new FunctionCallExpression(function, arguments);
+        return new FunctionCallExpression(line, col, function, arguments);
     }
 
     @Override
     public Object visitPrimaryExpr(AngularComponentParser.PrimaryExprContext ctx) {
-        PrimaryExpression result = new PrimaryExpression();
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        PrimaryExpression result = new PrimaryExpression(line, col);
         for (int i = 0; i < ctx.getChildCount(); i++) {
             ParseTree child = ctx.getChild(i);
 
             // Case: THIS
             if (child instanceof TerminalNode && child.getText().equals("this")) {
-                result.setExpression(new Expression());
-                result.getExpression().setId("this");
+                Expression expr = new Expression(line, col);
+                expr.setId("this");
+                result.setExpression(expr);
                 return result;
             }
 
             // Case: ID (variable name, identifier)
             if (child instanceof TerminalNode && ((TerminalNode) child).getSymbol().getType() == AngularComponentLexer.ID) {
-                Expression expr = new Expression();
+                Expression expr = new Expression(line, col);
                 expr.setId(child.getText());
                 result.setExpression(expr);
                 return result;
@@ -412,7 +449,7 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
             // Case: NUMBER
             if (child instanceof TerminalNode && ((TerminalNode) child).getSymbol().getType() == AngularComponentLexer.NUMBER) {
-                Expression expr = new Expression();
+                Expression expr = new Expression(line, col);
                 expr.setId(child.getText());
                 result.setExpression(expr);
                 return result;
@@ -420,7 +457,7 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
             // Case: STRING
             if (child instanceof TerminalNode && ((TerminalNode) child).getSymbol().getType() == AngularComponentLexer.STRING) {
-                Expression expr = new Expression();
+                Expression expr = new Expression(line, col);
                 expr.setId(child.getText());
                 result.setExpression(expr);
                 return result;
@@ -429,7 +466,7 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
             // Case: BOOLEAN (true / false)
             if (child instanceof TerminalNode && (
                     child.getText().equals("true") || child.getText().equals("false"))) {
-                Expression expr = new Expression();
+                Expression expr = new Expression(line, col);
                 expr.setId(child.getText());
                 result.setExpression(expr);
                 return result;
@@ -437,7 +474,7 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
             // Case: NULL
             if (child instanceof TerminalNode && child.getText().equals("null")) {
-                Expression expr = new Expression();
+                Expression expr = new Expression(line, col);
                 expr.setId("null");
                 result.setExpression(expr);
                 return result;
@@ -445,7 +482,7 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
             // Case: TEMPLATE_STRING
             if (child instanceof TerminalNode && ((TerminalNode) child).getSymbol().getType() == AngularComponentLexer.TEMPLATE_STRING) {
-                Expression expr = new Expression();
+                Expression expr = new Expression(line, col);
                 expr.setId(child.getText());
                 result.setExpression(expr);
                 return result;
@@ -484,40 +521,48 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitArrayLiteralExpression(AngularComponentParser.ArrayLiteralExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         List<Expression> elements = new ArrayList<>();
         if (ctx.expression() != null) {
             for (AngularComponentParser.ExpressionContext exprCtx : ctx.expression()) {
                 elements.add((Expression) visit(exprCtx));
             }
         }
-        return new ArrayLiteralExpression(elements);
+        return new ArrayLiteralExpression(line, col, elements);
     }
 
     @Override
     public Object visitObjectLiteralExpression(AngularComponentParser.ObjectLiteralExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         List<ObjectLiteralPair> pairs = new ArrayList<>();
         if (ctx.objectLiteralPair() != null) {
             for (AngularComponentParser.ObjectLiteralPairContext pairCtx : ctx.objectLiteralPair()) {
                 pairs.add((ObjectLiteralPair) visitObjectLiteralPair(pairCtx));
             }
         }
-        return new ObjectLiteralExpression(pairs);
+        return new ObjectLiteralExpression(line, col, pairs);
     }
 
     @Override
     public Object visitObjectLiteralPair(AngularComponentParser.ObjectLiteralPairContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         String key = ctx.ID().getText();
         Expression value = (Expression) visit(ctx.expression());
-        return new ObjectLiteralPair(key, value);
+        return new ObjectLiteralPair(line, col, key, value);
     }
 
     @Override
     public Object visitArgumentList(AngularComponentParser.ArgumentListContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         List<Expression> arguments = new ArrayList<>();
         for (AngularComponentParser.ExpressionContext exprCtx : ctx.expression()) {
             arguments.add((Expression) visit(exprCtx));
         }
-        return arguments;
+        return new ArgumentList(line, col, arguments);
     }
 
     @Override
@@ -534,14 +579,22 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitBlockStatement(AngularComponentParser.BlockStatementContext ctx) {
-        return super.visitBlockStatement(ctx);
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        List<Statement> statements = new ArrayList<>();
+        for (AngularComponentParser.StatementContext stmtCtx : ctx.statement()) {
+            statements.add((Statement) visit(stmtCtx));
+        }
+        return new BlockStatement(line, col, statements);
     }
 
     @Override
     public Object visitExpressionStatement(AngularComponentParser.ExpressionStatementContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         Expression expr1 = (Expression) visitExpression(ctx.expression());
 
-        return new ExpressionStatement(expr1);
+        return new ExpressionStatement(line, col, expr1);
     }
 
     @Override
@@ -551,7 +604,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitHtmlName(AngularComponentParser.HtmlNameContext ctx) {
-        HtmlNameElement htmlNameElement = new HtmlNameElement();
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        HtmlNameElement htmlNameElement = new HtmlNameElement(line, col);
         htmlNameElement.setName(ctx.NAME_HTML().getText());
         return htmlNameElement;
     }
@@ -563,7 +618,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitTag(AngularComponentParser.TagContext ctx) {
-        TagElement tagElement = new TagElement();
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        TagElement tagElement = new TagElement(line, col);
 
         // Case 1: Opening + Closing Tag
         if (ctx.openingTag() != null && ctx.closingTag() != null) {
@@ -573,7 +630,7 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
             SymbolTable.pushHtmlTag(openingTagName);
 
             // Build opening tag
-            OpeningTag openingTag = new OpeningTag();
+            OpeningTag openingTag = new OpeningTag(line, col);
             for (AngularComponentParser.AttributesContext attrCtx : ctx.openingTag().attributes()) {
                 Attributes attr = (Attributes) visit(attrCtx);
                 openingTag.getAttributes().add(attr);
@@ -599,13 +656,13 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
             }
 
             // Build closing tag
-            ClosingTag closingTag = new ClosingTag();
+            ClosingTag closingTag = new ClosingTag(line, col);
             closingTag.setNAME_HTML(closingTagName);
             tagElement.setClosingTag(closingTag);
         }
         // Case 2: Self-closing tag
         else if (ctx.selfClosingTag() != null) {
-            SelfClosingTag selfClosingTag = new SelfClosingTag();
+            SelfClosingTag selfClosingTag = new SelfClosingTag(line, col);
             for (AngularComponentParser.AttributesContext attrCtx : ctx.selfClosingTag().attributes()) {
                 Attributes attr = (Attributes) visit(attrCtx);
                 selfClosingTag.getAttributes().add(attr);
@@ -633,13 +690,15 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitRegularAttribute(AngularComponentParser.RegularAttributeContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         String attributeName = ctx.NAME_HTML().getText();
 
         if (!HtmlAttributeValidator.isValidHtmlAttribute(attributeName)) {
             throw new RuntimeException("Invalid HTML attribute name: " + attributeName);
         }
 
-        Attributes attr = new Attributes();
+        Attributes attr = new Attributes(line, col);
         attr.setHtmlName(attributeName);
         String value = ctx.STRING_HTML().getText();
         attr.setHtmlString(value.substring(1, value.length() - 1)); // Remove quotes
@@ -649,20 +708,24 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitStructuralDirectiveAttribute(AngularComponentParser.StructuralDirectiveAttributeContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         String directive = ctx.STRUCTURAL_DIR_HTML().getText();
 
         if (!HtmlAttributeValidator.isValidHtmlAttribute("*" + directive)) {
             throw new RuntimeException("Invalid structural directive: " + directive);
         }
 
-        Attributes attr = new Attributes();
+        Attributes attr = new Attributes(line, col);
         attr.setStructuralDir(directive + "=" + ctx.STRING_HTML().getText());
         return attr;
     }
 
     @Override
     public Object visitPropertyBindingAttribute(AngularComponentParser.PropertyBindingAttributeContext ctx) {
-        Attributes attr = new Attributes();
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        Attributes attr = new Attributes(line, col);
         attr.setBinding(ctx.BINDING_HTML().getText() + "=" +
                 ctx.STRING_HTML().getText());
         return attr;
@@ -670,7 +733,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitEventBindingAttribute(AngularComponentParser.EventBindingAttributeContext ctx) {
-        Attributes attr = new Attributes();
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        Attributes attr = new Attributes(line, col);
         attr.setEvent(ctx.EVENT_BINDING_HTML().getText() + "=" +
                 ctx.STRING_HTML().getText());
         return attr;
@@ -678,13 +743,17 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitInterpolation(AngularComponentParser.InterpolationContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         String interpolatedValue = ctx.NAME_HTML().getText();
-        return new InterpolationElement(interpolatedValue);
+        return new InterpolationElement(line, col, interpolatedValue);
     }
 
     @Override
     public Object visitCssBodyContent(AngularComponentParser.CssBodyContentContext ctx) {
-        CssBody cssBody = new CssBody();
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        CssBody cssBody = new CssBody(line, col);
         CssObjects cssObjects = (CssObjects) visit(ctx.cssObjects());
         cssBody.setCssObjects(cssObjects);
         return cssBody;
@@ -692,7 +761,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitCssObjectList(AngularComponentParser.CssObjectListContext ctx) {
-        CssObjects cssObjects = new CssObjects();
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        CssObjects cssObjects = new CssObjects(line, col);
         List<CssElement> elements = new ArrayList<>();
 
         for (AngularComponentParser.CsselementContext elementCtx : ctx.csselement()) {
@@ -706,7 +777,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitCssRule(AngularComponentParser.CssRuleContext ctx) {
-        CssElement cssElement = new CssElement();
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        CssElement cssElement = new CssElement(line, col);
         List<CssElementBody> elementBodies = new ArrayList<>();
 
         for (AngularComponentParser.BodyelementContext bodyCtx : ctx.bodyelement()) {
@@ -720,13 +793,15 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitCssProperty(AngularComponentParser.CssPropertyContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
         String propertyName = ctx.ID_CSS().getText();
 
         if (!HtmlAttributeValidator.isValidCssProperty(propertyName)) {
             throw new RuntimeException("Invalid CSS property: " + propertyName);
         }
 
-        CssElementBody elementBody = new CssElementBody();
+        CssElementBody elementBody = new CssElementBody(line, col);
         elementBody.setId_css(propertyName);
 
         CssValue cssValue = (CssValue) visit(ctx.cssValue());
@@ -737,7 +812,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
     @Override
     public Object visitCssValueExpression(AngularComponentParser.CssValueExpressionContext ctx) {
-        CssValue cssValue = new CssValue();
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        CssValue cssValue = new CssValue(line, col);
         List<String> values = new ArrayList<>();
 
         if (ctx.PERCENT() != null) {

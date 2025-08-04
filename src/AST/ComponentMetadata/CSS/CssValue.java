@@ -1,10 +1,15 @@
 package src.AST.ComponentMetadata.CSS;
 
+import src.AST.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CssValue {
-    List <String> ID_CSS  =new ArrayList<>();
+public class CssValue extends Node {
+    List<String> ID_CSS = new ArrayList<>();
+
+    public CssValue(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
 
     public List<String> getID_CSS() {
         return ID_CSS;

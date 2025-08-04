@@ -1,8 +1,14 @@
 package src.AST.ComponentMetadata.CSS;
 
-public class CssElementBody {
-    String Id_css ;
+import src.AST.Node;
+
+public class CssElementBody extends Node {
+    String Id_css;
     CssValue cssValue;
+
+    public CssElementBody(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
 
     public String getId_css() {
         return Id_css;
@@ -27,5 +33,4 @@ public class CssElementBody {
                 ", \n=" + cssValue +
                 "\n}";
     }
-
 }

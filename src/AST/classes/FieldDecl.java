@@ -1,8 +1,9 @@
 package src.AST.classes;
 
+import src.AST.Node;
 import src.AST.expression.Expression;
 
-public class FieldDecl implements ClassMember {
+public class FieldDecl extends Node implements ClassMember {
     private final String accessModifier; // "public", "private", etc.
     private final String name;
     private final String type;
@@ -10,7 +11,7 @@ public class FieldDecl implements ClassMember {
     private final boolean isRequired;   // !
     private final Expression initializer;
 
-    public FieldDecl(
+    public FieldDecl(int lineNumber, int columnNumber,
             String accessModifier,
             String name,
             String type,
@@ -18,6 +19,7 @@ public class FieldDecl implements ClassMember {
             boolean isRequired,
             Expression initializer
     ) {
+        super(lineNumber, columnNumber);
         this.accessModifier = accessModifier;
         this.name = name;
         this.type = type;

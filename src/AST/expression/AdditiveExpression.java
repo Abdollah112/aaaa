@@ -1,8 +1,8 @@
 package src.AST.expression;
 
 public class AdditiveExpression extends Expression {
-
-    public AdditiveExpression(Expression left, Expression right, String operator) {
+    public AdditiveExpression(int lineNumber, int columnNumber, Expression left, Expression right, String operator) {
+        super(lineNumber, columnNumber);
         this.left = left;
         this.right = right;
         this.operator = operator;

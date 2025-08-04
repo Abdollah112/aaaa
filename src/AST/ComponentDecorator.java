@@ -4,11 +4,12 @@ import src.AST.ComponentMetadata.ComponentMetadata;
 
 import java.util.List;
 
-public class ComponentDecorator {
+public class ComponentDecorator extends Node {
     private final String name;
     private List<ComponentMetadata> componentMetadata;
 
-    public ComponentDecorator(String name, List<ComponentMetadata> componentMetadata) {
+    public ComponentDecorator(int lineNumber, int columnNumber, String name, List<ComponentMetadata> componentMetadata) {
+        super(lineNumber, columnNumber);
         this.name = name;
         this.componentMetadata = componentMetadata;
     }

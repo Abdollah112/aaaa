@@ -1,10 +1,15 @@
 package src.AST.ComponentMetadata.CSS;
 
+import src.AST.Node;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CssObjects {
-    List<CssElement> cssElementlist =new ArrayList<CssElement>();
+public class CssObjects extends Node {
+    List<CssElement> cssElementlist = new ArrayList<CssElement>();
+
+    public CssObjects(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
 
     public List<CssElement> getCssElementlist() {
         return cssElementlist;

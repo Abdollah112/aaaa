@@ -5,7 +5,8 @@ public class MultiplicativeExpression extends Expression {
     private Expression right;
     private String operator;
 
-    public MultiplicativeExpression(Expression left, Expression right, String operator) {
+    public MultiplicativeExpression(int lineNumber, int columnNumber, Expression left, Expression right, String operator) {
+        super(lineNumber, columnNumber);
         this.left = left;
         this.right = right;
         this.operator = operator;

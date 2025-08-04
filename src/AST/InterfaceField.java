@@ -1,10 +1,11 @@
 package src.AST;
 
-public class InterfaceField {
+public class InterfaceField extends Node {
     private final String name;
     private final String type;
 
-    public InterfaceField(String name, String type) {
+    public InterfaceField(int lineNumber, int columnNumber, String name, String type) {
+        super(lineNumber, columnNumber);
         this.name = name;
         this.type = type;
     }
@@ -21,5 +22,4 @@ public class InterfaceField {
     public String toString() {
         return name + ": " + type + ";";
     }
-
 }

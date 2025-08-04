@@ -1,16 +1,18 @@
 package src.AST.classes;
 
+import src.AST.Node;
 import src.AST.statement.Statement;
 
 import java.util.List;
 
-public class MethodDecl implements ClassMember {
+public class MethodDecl extends Node implements ClassMember {
     private final String name;
     private final String returnType;
     private final List<Statement> body;
 
 
-    public MethodDecl(String name, String returnType, List<Statement> body) {
+    public MethodDecl(int lineNumber, int columnNumber, String name, String returnType, List<Statement> body) {
+        super(lineNumber, columnNumber);
         this.name = name;
         this.returnType = returnType;
         this.body = body;

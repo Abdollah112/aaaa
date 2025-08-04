@@ -1,11 +1,13 @@
 package src.AST.statement;
 
+import src.AST.Node;
 import src.AST.expression.Expression;
 
-public class ExpressionStatement implements Statement {
+public class ExpressionStatement extends Node implements Statement {
     private final Expression expression;
 
-    public ExpressionStatement(Expression expression) {
+    public ExpressionStatement(int lineNumber, int columnNumber, Expression expression) {
+        super(lineNumber, columnNumber);
         this.expression = expression;
     }
 

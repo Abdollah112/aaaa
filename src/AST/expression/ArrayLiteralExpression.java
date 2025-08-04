@@ -5,7 +5,8 @@ import java.util.List;
 public class ArrayLiteralExpression extends Expression {
     private final List<Expression> expressions;
 
-    public ArrayLiteralExpression(List<Expression> expressions) {
+    public ArrayLiteralExpression(int lineNumber, int columnNumber, List<Expression> expressions) {
+        super(lineNumber, columnNumber);
         this.expressions = expressions;
     }
 
@@ -23,4 +24,4 @@ public class ArrayLiteralExpression extends Expression {
                 .reduce((a, b) -> a + ", " + b)
                 .orElse("");
     }
-}
+}   

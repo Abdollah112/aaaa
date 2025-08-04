@@ -1,9 +1,12 @@
 package src.AST.ComponentMetadata.HTML;
 
-public class InterpolationElement implements Element{
+import src.AST.Node;
+
+public class InterpolationElement extends Node implements Element {
     private String value;
 
-    public InterpolationElement(String value) {
+    public InterpolationElement(int lineNumber, int columnNumber, String value) {
+        super(lineNumber, columnNumber);
         this.value = value;
     }
 
@@ -21,5 +24,4 @@ public class InterpolationElement implements Element{
                 "\nvalue='" + value + '\'' +
                 "\n}";
     }
-
 }

@@ -1,10 +1,11 @@
 package src.AST;
 
-public class ImportStmt {
+public class ImportStmt extends Node {
     private final String lib;
     private final String from;
 
-    public ImportStmt(String lib, String from) {
+    public ImportStmt(int lineNumber, int columnNumber, String lib, String from) {
+        super(lineNumber, columnNumber);
         this.lib = lib;
         this.from = from;
     }
@@ -20,6 +21,4 @@ public class ImportStmt {
     public String toString() {
         return "import { " + lib + " } from '" + from + "';";
     }
-
-
 }

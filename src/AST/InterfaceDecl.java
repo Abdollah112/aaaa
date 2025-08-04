@@ -2,11 +2,12 @@ package src.AST;
 
 import java.util.List;
 
-public class InterfaceDecl {
+public class InterfaceDecl extends Node {
     private final String name;
     private final List<InterfaceField> fields;
 
-    public InterfaceDecl(String name, List<InterfaceField> fields) {
+    public InterfaceDecl(int lineNumber, int columnNumber, String name, List<InterfaceField> fields) {
+        super(lineNumber, columnNumber);
         this.name = name;
         this.fields = fields;
     }
@@ -29,7 +30,4 @@ public class InterfaceDecl {
         sb.append("}");
         return sb.toString();
     }
-
-
-
 }
