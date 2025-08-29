@@ -12,7 +12,7 @@ public class PrimaryExpression extends Expression {
     public PrimaryExpression(int lineNumber, int columnNumber) {
         super(lineNumber, columnNumber);
     }
-    // Optional: for compatibility, a no-arg constructor that defaults to (0,0)
+
     public PrimaryExpression() {
         super(0, 0);
     }
@@ -33,19 +33,21 @@ public class PrimaryExpression extends Expression {
     }
     @Override
     public String toString() {
+        String positionInfo = super.toString();
+        
         if (arrayLiteralExpression != null) {
-            return arrayLiteralExpression.toString();
+            return String.format("%s %s", arrayLiteralExpression.toString(), positionInfo);
         }
         if (objectLiteralExpression != null) {
-            return objectLiteralExpression.toString();
+            return String.format("%s %s", objectLiteralExpression.toString(), positionInfo);
         }
         if (expression != null && op != null) {
-            return expression + op;
+            return String.format("%s%s %s", expression, op, positionInfo);
         }
         if (expression != null) {
-            return expression.toString();
+            return String.format("%s %s", expression.toString(), positionInfo);
         }
-        return "unknown";
+        return String.format("unknown %s", positionInfo);
     }
 }
 

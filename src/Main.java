@@ -9,8 +9,12 @@ import src.AST.Program;
 import src.visitors.MyAngularVisitor;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.antlr.v4.runtime.CharStreams.fromFileName;
+
 public class Main {
     public static void main(String[] args) {
         try {
@@ -26,7 +30,12 @@ public class Main {
 
             System.out.println("-------------------------program------------------------" + "\n" + program);
 
-            System.out.println("-------------------------generateCode------------------------" + "\n");
+            String generatedCode = program.generateCode();
+            System.out.println("-------------------------generateCode------------------------" + "\n" + generatedCode);
+
+            // Write to index.html file
+            writeToFile("index.html", generatedCode);
+            System.out.println("Successfully generated index.html");
 
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
@@ -35,4 +44,12 @@ public class Main {
             e.printStackTrace(); // Optional: print stack trace for debugging
         }
     }
+
+
+    private static void writeToFile(String fileName, String content) throws IOException {
+        Path path = Paths.get(fileName);
+        byte[] bytes = content.getBytes();
+        Files.write(path, bytes);
+    }
+
 }

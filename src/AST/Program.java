@@ -51,9 +51,40 @@ public class Program extends Node {
         return imports;
     }
 
+
+
+    public String generateCode() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("<!DOCTYPE html>\n");
+        stringBuilder.append("<html>\n");
+        stringBuilder.append("<head>\n");
+        stringBuilder.append("<style>\n");
+
+        // the css part
+
+        stringBuilder.append("</style>\n");
+        stringBuilder.append("</head>\n");
+
+        stringBuilder.append("<body>\n");
+
+        // html part
+
+        stringBuilder.append("\n<script>");
+
+
+        // js part
+
+        stringBuilder.append("</script>\n");
+        stringBuilder.append("</body>\n");
+        stringBuilder.append("</html>\n");
+        return stringBuilder.toString();
+    }
+
+
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("Program {\n");
+        StringBuilder sb = new StringBuilder(String.format("Program { Line: %d, Column: %d\n", lineNumber, columnNumber));
 
         if (!imports.isEmpty()) {
             sb.append("  Imports:\n");

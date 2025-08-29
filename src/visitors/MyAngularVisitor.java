@@ -191,7 +191,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
         try {
             currentScope.put(classSymbol); // May throw ItemAlreadyExistsException
         } catch (ItemAlreadyExistsException ex) {
-            throw new RuntimeException(ex); // Wrap into unchecked exception
+            throw new RuntimeException(
+                "Duplicate class '" + className + "' at line " + line + ", column " + col, ex
+            );
         }
 
         SymbolTable.pushScope(classSymbol.getClassScope());
@@ -239,8 +241,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
         try {
             currentScope.put(fieldSymbol); // may throw ItemAlreadyExistsException
         } catch (ItemAlreadyExistsException ex) {
-            // Wrap into unchecked exception to avoid throws declaration
-            throw new RuntimeException("Duplicate field name '" + name + "'", ex);
+            throw new RuntimeException(
+                "Duplicate field name '" + name + "' at line " + line + ", column " + col, ex
+            );
         }
 
         return new FieldDecl(line, col, accessModifier, name, type, isOptional, isRequired, initializer);
@@ -284,8 +287,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
             return new MethodDecl(line, col, methodName, returnType, body);
 
         } catch (ItemAlreadyExistsException ex) {
-            // Wrap checked exception to avoid throws declaration
-            throw new RuntimeException("Duplicate method name '" + methodName + "'", ex);
+            throw new RuntimeException(
+                "Duplicate method name '" + methodName + "' at line " + line + ", column " + col, ex
+            );
         }
     }
 
@@ -695,7 +699,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
         String attributeName = ctx.NAME_HTML().getText();
 
         if (!HtmlAttributeValidator.isValidHtmlAttribute(attributeName)) {
-            throw new RuntimeException("Invalid HTML attribute name: " + attributeName);
+            throw new RuntimeException(
+                "Invalid HTML attribute name: '" + attributeName + "' at line " + line + ", column " + col
+            );
         }
 
         Attributes attr = new Attributes(line, col);
@@ -713,7 +719,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
         String directive = ctx.STRUCTURAL_DIR_HTML().getText();
 
         if (!HtmlAttributeValidator.isValidHtmlAttribute("*" + directive)) {
-            throw new RuntimeException("Invalid structural directive: " + directive);
+            throw new RuntimeException(
+                "Invalid structural directive: '" + directive + "' at line " + line + ", column " + col
+            );
         }
 
         Attributes attr = new Attributes(line, col);
@@ -798,7 +806,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
         String propertyName = ctx.ID_CSS().getText();
 
         if (!HtmlAttributeValidator.isValidCssProperty(propertyName)) {
-            throw new RuntimeException("Invalid CSS property: " + propertyName);
+            throw new RuntimeException(
+                "Invalid CSS property: '" + propertyName + "' at line " + line + ", column " + col
+            );
         }
 
         CssElementBody elementBody = new CssElementBody(line, col);

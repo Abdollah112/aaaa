@@ -67,22 +67,20 @@ public class Expression extends Node {
         return argumentList;
     }
 
-    // === toString() (for debugging / printing) ===
-
     @Override
     public String toString() {
         if (primaryExpression != null) {
-            return primaryExpression.toString();
+            return primaryExpression.toString() + " " + super.toString();
         } else if (left != null && operator != null && right != null) {
-            return "(" + left + " " + operator + " " + right + ")";
+            return String.format("(%s %s %s) %s", left, operator, right, super.toString());
         } else if (left != null && operator != null && id != null) {
-            return "(" + left+ operator + id + ")";
+            return String.format("(%s%s%s) %s", left, operator, id, super.toString());
         } else if (id != null && argumentList != null) {
-            return id + "(" + argumentList + ")";
+            return String.format("%s(%s) %s", id, argumentList, super.toString());
         } else if (id != null) {
-            return id;
+            return String.format("%s %s", id, super.toString());
         } else {
-            return "unknown";
+            return String.format("unknown %s", super.toString());
         }
     }
 

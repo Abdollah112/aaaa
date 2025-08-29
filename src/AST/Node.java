@@ -16,4 +16,9 @@ public class Node {
     public int getColumnNumber() {
         return columnNumber;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Line: %d, Column: %d", lineNumber, columnNumber);
+    }
 } 
