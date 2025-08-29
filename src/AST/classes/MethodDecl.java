@@ -40,4 +40,25 @@ public class MethodDecl extends Node implements ClassMember {
         sb.append("}");
         return sb.toString();
     }
+
+    public String generateJS() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("function ").append(name).append("() {\n");
+        if (body != null) {
+            for (Statement stmt : body) {
+                if (stmt instanceof src.AST.statement.ExpressionStatement) {
+                    sb.append("  ").append(((src.AST.statement.ExpressionStatement) stmt).generateJS()).append("\n");
+                } else if (stmt instanceof src.AST.statement.BlockStatement) {
+                    // Inline nested blocks
+                    String block = ((src.AST.statement.BlockStatement) stmt).generateJS();
+                    for (String line : block.split("\n")) {
+                        if (!line.isEmpty()) sb.append("  ").append(line).append("\n");
+                    }
+                }
+            }
+        }
+        sb.append("  render();\n");
+        sb.append("}\n");
+        return sb.toString();
+    }
 }

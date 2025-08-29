@@ -39,6 +39,27 @@ public class ClassDecl extends Node {
         return members;
     }
 
+    public String generateHTML() { return ""; }
+
+    public String generateCSS() { return ""; }
+
+    public String generateJS() {
+        StringBuilder sb = new StringBuilder();
+        // Emit fields as let declarations, methods as functions
+        if (members != null) {
+            for (ClassMember member : members) {
+                if (member instanceof FieldDecl) {
+                    FieldDecl f = (FieldDecl) member;
+                    sb.append(f.generateJS()).append("\n");
+                } else if (member instanceof MethodDecl) {
+                    MethodDecl m = (MethodDecl) member;
+                    sb.append(m.generateJS());
+                }
+            }
+        }
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

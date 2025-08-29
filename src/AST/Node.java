@@ -21,4 +21,17 @@ public class Node {
     public String toString() {
         return String.format("Line: %d, Column: %d", lineNumber, columnNumber);
     }
+
+    // Code generation hooks; children can override as needed
+    public String generateHTML() {
+        return "";
+    }
+
+    public String generateCSS() {
+        return "";
+    }
+
+    public String generateJS() {
+        return "";
+    }
 } 

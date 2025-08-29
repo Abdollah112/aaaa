@@ -17,6 +17,11 @@ public class ClosingTag extends Node {
         this.NAME_HTML = NAME_HTML;
     }
 
+    public String generateHTML() {
+        if (NAME_HTML == null) return "";
+        return "</" + NAME_HTML + ">";
+    }
+
     @Override
     public String toString() {
         return "\nClosingTag{" +

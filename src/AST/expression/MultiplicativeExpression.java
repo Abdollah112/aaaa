@@ -21,4 +21,9 @@ public class MultiplicativeExpression extends Expression {
                 "\nright=" + right +
                 "\n}";
     }
+
+    @Override
+    public String generateJS() {
+        return (left != null ? left.generateJS() : "") + " " + operator + " " + (right != null ? right.generateJS() : "");
+    }
 }

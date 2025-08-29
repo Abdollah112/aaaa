@@ -18,4 +18,10 @@ public class IncrementExpression extends Expression {
                 "\nisPostfix=" + isPostfix +
                 "\n}";
     }
+
+    @Override
+    public String generateJS() {
+        if (expression == null) return "";
+        return isPostfix ? expression.generateJS() + "++" : "++" + expression.generateJS();
+    }
 }

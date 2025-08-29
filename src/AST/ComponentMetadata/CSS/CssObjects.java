@@ -19,6 +19,16 @@ public class CssObjects extends Node {
         this.cssElementlist = cssElementlist;
     }
 
+    public String generateCSS() {
+        StringBuilder sb = new StringBuilder();
+        if (cssElementlist != null) {
+            for (CssElement el : cssElementlist) {
+                sb.append(el.generateCSS());
+            }
+        }
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         return "\nCssObjects{" +

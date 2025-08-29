@@ -16,4 +16,8 @@ public class ObjectLiteralPair extends Node {
     public String toString() {
         return key + ": " + value;
     }
+
+    public String generateJS() {
+        return key + ": " + (value != null ? value.generateJS() : "null");
+    }
 }

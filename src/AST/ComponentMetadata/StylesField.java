@@ -21,6 +21,18 @@ public class StylesField extends Node implements ComponentMetadata {
     }
 
     @Override
+    public String generateHTML() { return ""; }
+
+    @Override
+    public String generateCSS() {
+        if (cssBody == null) return "";
+        return cssBody.generateCSS();
+    }
+
+    @Override
+    public String generateJS() { return ""; }
+
+    @Override
     public String toString() {
         return "\nStyles{" +
                 "\n" + cssBody +

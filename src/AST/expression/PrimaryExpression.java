@@ -49,6 +49,23 @@ public class PrimaryExpression extends Expression {
         }
         return String.format("unknown %s", positionInfo);
     }
+
+    @Override
+    public String generateJS() {
+        if (arrayLiteralExpression != null) {
+            return "[" + arrayLiteralExpression.generateJS() + "]";
+        }
+        if (objectLiteralExpression != null) {
+            return "{" + objectLiteralExpression.generateJS() + "}";
+        }
+        if (expression != null && op != null) {
+            return op + expression.generateJS();
+        }
+        if (expression != null) {
+            return expression.generateJS();
+        }
+        return "";
+    }
 }
 
 

@@ -24,4 +24,19 @@ public class ArgumentList extends Expression {
                 .reduce((a, b) -> a + ", " + b)
                 .orElse("");
     }
+
+    @Override
+    public String generateJS() {
+        if (expressions == null || expressions.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (Expression e : expressions) {
+            if (!first) sb.append(", ");
+            sb.append(e.generateJS());
+            first = false;
+        }
+        return sb.toString();
+    }
 }

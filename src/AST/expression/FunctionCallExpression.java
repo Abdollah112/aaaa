@@ -20,4 +20,21 @@ public class FunctionCallExpression extends Expression {
                 "\narguments=" + arguments +
                 "\n}";
     }
+
+    @Override
+    public String generateJS() {
+        String args = "";
+        if (arguments != null && !arguments.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            boolean first = true;
+            for (Expression e : arguments) {
+                if (!first) sb.append(", ");
+                sb.append(e.generateJS());
+                first = false;
+            }
+            args = sb.toString();
+        }
+        String fn = function != null ? function.generateJS() : "";
+        return fn + "(" + args + ")";
+    }
 }

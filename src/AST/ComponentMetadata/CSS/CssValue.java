@@ -19,6 +19,16 @@ public class CssValue extends Node {
         this.ID_CSS = ID_CSS;
     }
 
+    public String generateCSS() {
+        StringBuilder sb = new StringBuilder();
+        if (ID_CSS != null) {
+            for (String line : ID_CSS) {
+                sb.append(line).append(";");
+            }
+        }
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         return "\nCssValue{" +

@@ -20,4 +20,10 @@ public class PropertyAccessExpression extends Expression {
                 "\nproperty='" + property + '\'' +
                 "\n}";
     }
+
+    @Override
+    public String generateJS() {
+        String obj = object != null ? object.generateJS() : "";
+        return obj + "." + property;
+    }
 }

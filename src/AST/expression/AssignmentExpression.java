@@ -18,4 +18,9 @@ public class AssignmentExpression extends Expression {
                 "\nright=" + right +
                 "\n}";
     }
+
+    @Override
+    public String generateJS() {
+        return (left != null ? left.generateJS() : "") + " = " + (right != null ? right.generateJS() : "");
+    }
 }

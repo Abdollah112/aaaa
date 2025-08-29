@@ -20,6 +20,25 @@ public class InterfaceDecl extends Node {
         return fields;
     }
 
+    public String generateHTML() { return ""; }
+    public String generateCSS() { return ""; }
+    public String generateJS() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("/**\n");
+        sb.append(" * @typedef {Object} ").append(name).append("\n");
+        if (fields != null) {
+            for (InterfaceField field : fields) {
+                String type = field.getType();
+                String fieldName = field.getName();
+                if (type == null) type = "any";
+                sb.append(" * @property {").append(type).append("} ")
+                  .append(fieldName).append("\n");
+            }
+        }
+        sb.append(" */\n");
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

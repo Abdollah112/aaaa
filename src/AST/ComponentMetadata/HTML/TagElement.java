@@ -46,6 +46,30 @@ public class TagElement extends Node implements Element {
         this.selfClosingTag = selfClosingTag;
     }
 
+    public String generateHTML() {
+        StringBuilder sb = new StringBuilder();
+        if (selfClosingTag != null) {
+            sb.append(selfClosingTag.generateHTML());
+        } else if (openingTag != null) {
+            sb.append(openingTag.generateHTML());
+            if (elements != null) {
+                for (Element el : elements) {
+                    if (el instanceof TagElement) {
+                        sb.append(((TagElement) el).generateHTML());
+                    } else if (el instanceof HtmlNameElement) {
+                        sb.append(((HtmlNameElement) el).generateHTML());
+                    } else if (el instanceof InterpolationElement) {
+                        sb.append(((InterpolationElement) el).generateHTML());
+                    }
+                }
+            }
+            if (closingTag != null) {
+                sb.append(closingTag.generateHTML());
+            }
+        }
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("\nTag{");

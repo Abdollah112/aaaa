@@ -1,0 +1,29 @@
+import { Component } from "@angular/core";
+
+@Component({
+  selector: "app-root",
+  template: `
+    <div class="box" id="box"></div>
+    <div class="controls">
+      <button (click)="document.getElementById('box').style.background='red'">Red</button>
+      <button (click)="document.getElementById('box').style.background='green'">Green</button>
+      <button (click)="document.getElementById('box').style.background='blue'">Blue</button>
+    </div>
+  `,
+  styles: [
+    `
+      .box {
+        width: 200px;
+        height: 200px;
+        margin-bottom: 12px;
+      }
+      .controls button {
+        padding: 6px 10px;
+      }
+    `,
+  ],
+})
+export class AppComponent {
+}
+
+

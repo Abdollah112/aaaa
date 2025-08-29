@@ -15,6 +15,21 @@ public class BlockStatement extends Node implements Statement {
         return statements;
     }
 
+    public String generateJS() {
+        StringBuilder sb = new StringBuilder();
+        if (statements != null) {
+            for (Statement stmt : statements) {
+                if (stmt instanceof ExpressionStatement) {
+                    sb.append(((ExpressionStatement) stmt).generateJS());
+                } else if (stmt instanceof BlockStatement) {
+                    sb.append(((BlockStatement) stmt).generateJS());
+                }
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("{\n");

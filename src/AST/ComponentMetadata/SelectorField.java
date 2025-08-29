@@ -18,4 +18,11 @@ public class SelectorField extends Node implements ComponentMetadata {
         public String toString() {
             return "selector: '" + selector + "'";
         }
+
+        @Override
+        public String generateHTML() { return ""; }
+        @Override
+        public String generateCSS() { return ""; }
+        @Override
+        public String generateJS() { return ""; }
     }

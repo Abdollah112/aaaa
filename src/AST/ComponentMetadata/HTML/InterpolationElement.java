@@ -24,4 +24,9 @@ public class InterpolationElement extends Node implements Element {
                 "\nvalue='" + value + '\'' +
                 "\n}";
     }
+
+    public String generateHTML() {
+        if (value == null) return "";
+        return "<span data-bind=\"" + value + "\">{{" + value + "}}</span>";
+    }
 }

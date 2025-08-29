@@ -1,0 +1,2392 @@
+package src.AST;
+
+import src.AST.classes.ClassDecl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Program extends Node {
+    public List<ImportStmt> imports;
+    public List<InterfaceDecl> interfaces;
+    public List<ComponentDecorator> components;
+    public List<ClassDecl> classes;
+
+    public Program(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+        this.imports = new ArrayList<>();
+        this.interfaces = new ArrayList<>();
+        this.components = new ArrayList<>();
+        this.classes = new ArrayList<>();
+    }
+
+    public void addImport(ImportStmt importStmt) {
+        imports.add(importStmt);
+    }
+
+    public void addInterface(InterfaceDecl interfaceDecl) {
+        interfaces.add(interfaceDecl);
+    }
+
+    public void addComponent(ComponentDecorator componentDecorator) {
+        components.add(componentDecorator);
+    }
+
+    public void addClass(ClassDecl classNode) {
+        classes.add(classNode);
+    }
+
+    public List<InterfaceDecl> getInterfaces() {
+        return interfaces;
+    }
+
+    public List<ComponentDecorator> getComponents() {
+        return components;
+    }
+
+    public List<ClassDecl> getClasses() {
+        return classes;
+    }
+
+    public List<ImportStmt> getImports() {
+        return imports;
+    }
+
+
+
+    public String generateCode() {
+        StringBuilder htmlBuilder = new StringBuilder();
+        StringBuilder cssBuilder = new StringBuilder();
+        StringBuilder jsBuilder = new StringBuilder();
+
+        // Collect from interfaces, components, classes, and imports if they generate any code
+        for (ImportStmt importStmt : imports) {
+            if (importStmt != null) {
+                htmlBuilder.append(importStmt.generateHTML());
+                cssBuilder.append(importStmt.generateCSS());
+                jsBuilder.append(importStmt.generateJS());
+            }
+        }
+
+        for (InterfaceDecl interfaceDecl : interfaces) {
+            if (interfaceDecl != null) {
+                htmlBuilder.append(interfaceDecl.generateHTML());
+                cssBuilder.append(interfaceDecl.generateCSS());
+                jsBuilder.append(interfaceDecl.generateJS());
+            }
+        }
+
+        for (ComponentDecorator componentDecorator : components) {
+            if (componentDecorator != null) {
+                htmlBuilder.append(componentDecorator.generateHTML());
+                cssBuilder.append(componentDecorator.generateCSS());
+                jsBuilder.append(componentDecorator.generateJS());
+            }
+        }
+
+        for (ClassDecl classDecl : classes) {
+            if (classDecl != null) {
+                htmlBuilder.append(classDecl.generateHTML());
+                cssBuilder.append(classDecl.generateCSS());
+                jsBuilder.append(classDecl.generateJS());
+            }
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("<!DOCTYPE html>\n");
+        stringBuilder.append("<html>\n");
+        stringBuilder.append("<head>\n");
+        stringBuilder.append("<style>\n");
+        stringBuilder.append(cssBuilder);
+        stringBuilder.append("</style>\n");
+        stringBuilder.append("</head>\n");
+        stringBuilder.append("<body>\n");
+        stringBuilder.append(htmlBuilder);
+        stringBuilder.append("\n<script>\n");
+        // Simple runtime for data-binding
+        stringBuilder.append("function render(){\n");
+        stringBuilder.append("  document.querySelectorAll('[data-bind]').forEach(function(node){\n");
+        stringBuilder.append("    var key=node.getAttribute('data-bind');\n");
+        stringBuilder.append("    if (typeof window[key] !== 'undefined') { node.textContent = window[key]; }\n");
+        stringBuilder.append("  });\n");
+        stringBuilder.append("}\n");
+        stringBuilder.append(jsBuilder);
+        stringBuilder.append("\nrender();\n");
+        stringBuilder.append("\n</script>\n");
+        stringBuilder.append("</body>\n");
+        stringBuilder.append("</html>\n");
+        return stringBuilder.toString();
+    }
+
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(String.format("Program { Line: %d, Column: %d\n", lineNumber, columnNumber));
+
+        if (!imports.isEmpty()) {
+            sb.append("  Imports:\n");
+            for (ImportStmt imp : imports) {
+                sb.append("    ").append(imp).append("\n");
+            }
+        }
+
+        if (!interfaces.isEmpty()) {
+            sb.append("  Interfaces:\n");
+            for (InterfaceDecl intf : interfaces) {
+                sb.append("    ").append(intf).append("\n");
+            }
+        }
+
+        if (!components.isEmpty()) {
+            sb.append("  Components:\n");
+            for (ComponentDecorator comp : components) {
+                sb.append("    ").append(comp).append("\n");
+            }
+        }
+
+        if (!classes.isEmpty()) {
+            sb.append("  Classes:\n");
+            for (ClassDecl cls : classes) {
+                sb.append("    ").append(cls).append("\n");
+            }
+        }
+
+        sb.append("}");
+        return sb.toString();
+    }
+
+
+}
+
+
+package src.AST;
+
+import java.util.List;
+
+public class InterfaceDecl extends Node {
+    private final String name;
+    private final List<InterfaceField> fields;
+
+    public InterfaceDecl(int lineNumber, int columnNumber, String name, List<InterfaceField> fields) {
+        super(lineNumber, columnNumber);
+        this.name = name;
+        this.fields = fields;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<InterfaceField> getFields() {
+        return fields;
+    }
+
+    public String generateHTML() { return ""; }
+    public String generateCSS() { return ""; }
+    public String generateJS() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("/**\n");
+        sb.append(" * @typedef {Object} ").append(name).append("\n");
+        if (fields != null) {
+            for (InterfaceField field : fields) {
+                String type = field.getType();
+                String fieldName = field.getName();
+                if (type == null) type = "any";
+                sb.append(" * @property {").append(type).append("} ")
+                  .append(fieldName).append("\n");
+            }
+        }
+        sb.append(" */\n");
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("interface ").append(name).append(" {\n");
+        for (InterfaceField field : fields) {
+            sb.append("  ").append(field.toString()).append("\n");
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+}
+package src.AST;
+
+public class InterfaceField extends Node {
+    private final String name;
+    private final String type;
+
+    public InterfaceField(int lineNumber, int columnNumber, String name, String type) {
+        super(lineNumber, columnNumber);
+        this.name = name;
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return name + ": " + type + ";";
+    }
+
+    public String generateHTML() { return ""; }
+    public String generateCSS() { return ""; }
+    public String generateJS() { return ""; }
+}
+package src.AST;
+
+import src.AST.ComponentMetadata.ComponentMetadata;
+
+import java.util.List;
+
+public class ComponentDecorator extends Node {
+    private final String name;
+    private List<ComponentMetadata> componentMetadata;
+
+    public ComponentDecorator(int lineNumber, int columnNumber, String name, List<ComponentMetadata> componentMetadata) {
+        super(lineNumber, columnNumber);
+        this.name = name;
+        this.componentMetadata = componentMetadata;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<ComponentMetadata> getComponentMetadata() {
+        return componentMetadata;
+    }
+
+    // === Setters ===
+    public void setComponentMetadata(List<ComponentMetadata> componentMetadata) {
+        this.componentMetadata = componentMetadata;
+    }
+
+    public String generateHTML() {
+        StringBuilder sb = new StringBuilder();
+        if (componentMetadata != null) {
+            for (ComponentMetadata metadata : componentMetadata) {
+                if (metadata instanceof src.AST.ComponentMetadata.TemplateField) {
+                    sb.append(((src.AST.ComponentMetadata.TemplateField) metadata).generateHTML());
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    public String generateCSS() {
+        StringBuilder sb = new StringBuilder();
+        if (componentMetadata != null) {
+            for (ComponentMetadata metadata : componentMetadata) {
+                if (metadata instanceof src.AST.ComponentMetadata.StylesField) {
+                    sb.append(((src.AST.ComponentMetadata.StylesField) metadata).generateCSS());
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    public String generateJS() {
+        // Components may contribute JS later (e.g., lifecycle hooks). Empty for now.
+        return "";
+    }
+
+    // === toString ===
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("@").append(name).append("({\n");
+
+        if (componentMetadata != null && !componentMetadata.isEmpty()) {
+            for (ComponentMetadata metadata : componentMetadata) {
+                sb.append("  ").append(metadata.toString().replaceAll("\n", "\n  ")).append(",\n");
+            }
+            sb.delete(sb.length() - 2, sb.length()); // remove last ",\n"
+        }
+
+        sb.append("\n})");
+        return sb.toString();
+    }
+
+}
+package src.AST.ComponentMetadata;
+
+public interface ComponentMetadata {
+}
+package src.AST.ComponentMetadata;
+
+import src.AST.Node;
+
+public class SelectorField extends Node implements ComponentMetadata {
+        private final String selector;
+
+    public SelectorField(int lineNumber, int columnNumber, String selector) {
+        super(lineNumber, columnNumber);
+            this.selector = selector;
+        }
+
+        public String getSelector() {
+            return selector;
+        }
+
+        @Override
+        public String toString() {
+            return "selector: '" + selector + "'";
+        }
+
+        @Override
+        public String generateHTML() { return ""; }
+        @Override
+        public String generateCSS() { return ""; }
+        @Override
+        public String generateJS() { return ""; }
+    }
+package src.AST.ComponentMetadata;
+
+import src.AST.Node;
+import src.AST.ComponentMetadata.CSS.CssBody;
+import java.util.List;
+
+public class StylesField extends Node implements ComponentMetadata {
+    CssBody cssBody;
+
+    public StylesField(int lineNumber, int columnNumber, CssBody cssBody) {
+        super(lineNumber, columnNumber);
+        this.cssBody = cssBody;
+    }
+
+    public CssBody getCssBody() {
+        return cssBody;
+    }
+
+    public void setCssBody(CssBody cssBody) {
+        this.cssBody = cssBody;
+    }
+
+    @Override
+    public String generateHTML() { return ""; }
+
+    @Override
+    public String generateCSS() {
+        if (cssBody == null) return "";
+        return cssBody.generateCSS();
+    }
+
+    @Override
+    public String generateJS() { return ""; }
+
+    @Override
+    public String toString() {
+        return "\nStyles{" +
+                "\n" + cssBody +
+                "\n}";
+    }
+}package src.AST.ComponentMetadata;
+
+import src.AST.ComponentMetadata.HTML.HtmlNameElement;
+import src.AST.ComponentMetadata.HTML.InterpolationElement;
+import src.AST.ComponentMetadata.HTML.TagElement;
+import src.AST.Node;
+import src.AST.ComponentMetadata.HTML.Element;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TemplateField extends Node implements ComponentMetadata {
+    List<Element> element = new ArrayList<>();
+
+    public TemplateField(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
+
+    public List<Element> getElement() {
+        return element;
+    }
+
+    public void setElement(List<Element> element) {
+        this.element = element;
+    }
+
+    @Override
+    public String generateHTML() {
+        StringBuilder sb = new StringBuilder();
+        if (element != null) {
+            for (Element el : element) {
+                if (el instanceof TagElement) {
+                    sb.append(((TagElement) el).generateHTML());
+                } else if (el instanceof HtmlNameElement) {
+                    sb.append(((HtmlNameElement) el).generateHTML());
+                } else if (el instanceof InterpolationElement) {
+                    sb.append(((InterpolationElement) el).generateHTML());
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String generateCSS() { return ""; }
+
+    @Override
+    public String generateJS() { return ""; }
+
+    @Override
+    public String toString() {
+        return "\nTemplate{" +
+                "\n" + element +
+                "\n}";
+    }
+}package src.AST.ComponentMetadata.CSS;
+
+import src.AST.Node;
+
+public class CssBody extends Node {
+    CssObjects cssObjects;
+
+    public CssBody(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
+
+    public CssObjects getCssObjects() {
+        return cssObjects;
+    }
+
+    public void setCssObjects(CssObjects cssObjects) {
+        this.cssObjects = cssObjects;
+    }
+
+    public String generateCSS() {
+        if (cssObjects == null) return "";
+        return cssObjects.generateCSS();
+    }
+
+    @Override
+    public String toString() {
+        return "\nCssBody{" +
+                "\n=" + cssObjects +
+                "\n}";
+    }
+}
+package src.AST.ComponentMetadata.CSS;
+
+import src.AST.Node;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CssElement extends Node {
+    private String selector;
+    List<CssElementBody> CssElementBodies = new ArrayList<>();
+
+    public CssElement(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
+
+    public List<CssElementBody> getBodyCssElements() {
+        return CssElementBodies;
+    }
+
+    public void setBodyCssElements(List<CssElementBody> CssElementBodies) {
+        this.CssElementBodies = CssElementBodies;
+    }
+
+    public String getSelector() {
+        return selector;
+    }
+
+    public void setSelector(String selector) {
+        this.selector = selector;
+    }
+
+    public String generateCSS() {
+        StringBuilder sb = new StringBuilder();
+        if (selector != null && !selector.isEmpty()) {
+            sb.append(selector).append(" {\n");
+            if (CssElementBodies != null) {
+                for (CssElementBody body : CssElementBodies) {
+                    sb.append("  ").append(body.generateCSS()).append("\n");
+                }
+            }
+            sb.append("}\n");
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "\nCssElement{" +
+                "\nCssElementBodies=" + CssElementBodies +
+                "\n}";
+    }
+}package src.AST.ComponentMetadata.CSS;
+
+import src.AST.Node;
+
+public class CssElementBody extends Node {
+    String propertyName;
+    CssValue cssValue;
+
+    public CssElementBody(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
+
+    public String getPropertyName() { return propertyName; }
+    public void setPropertyName(String propertyName) { this.propertyName = propertyName; }
+
+    public CssValue getCssValue() {
+        return cssValue;
+    }
+
+    public void setCssValue(CssValue cssValue) {
+        this.cssValue = cssValue;
+    }
+
+    public String generateCSS() {
+        StringBuilder sb = new StringBuilder();
+        if (propertyName != null) {
+            sb.append(propertyName).append(": ");
+            if (cssValue != null) sb.append(cssValue.generateCSS());
+            sb.append(";");
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "\nBodyelement{" +
+                "\nproperty='" + propertyName + '\'' +
+                ", \nvalue=" + cssValue +
+                "\n}";
+    }
+}
+package src.AST.ComponentMetadata.CSS;
+
+import src.AST.Node;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CssObjects extends Node {
+    List<CssElement> cssElementlist = new ArrayList<CssElement>();
+
+    public CssObjects(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
+
+    public List<CssElement> getCssElementlist() {
+        return cssElementlist;
+    }
+
+    public void setCssElementlist(List<CssElement> cssElementlist) {
+        this.cssElementlist = cssElementlist;
+    }
+
+    public String generateCSS() {
+        StringBuilder sb = new StringBuilder();
+        if (cssElementlist != null) {
+            for (CssElement el : cssElementlist) {
+                sb.append(el.generateCSS());
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "\nCssObjects{" +
+                "\n" + cssElementlist +
+                "\n}";
+    }
+}package src.AST.ComponentMetadata.CSS;
+
+import src.AST.Node;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CssValue extends Node {
+    List<String> ID_CSS = new ArrayList<>();
+
+    public CssValue(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
+
+    public List<String> getID_CSS() {
+        return ID_CSS;
+    }
+
+    public void setID_CSS(List<String> ID_CSS) {
+        this.ID_CSS = ID_CSS;
+    }
+
+    public String generateCSS() {
+        StringBuilder sb = new StringBuilder();
+        if (ID_CSS != null) {
+            for (String line : ID_CSS) {
+                sb.append(line).append(";");
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "\nCssValue{" +
+                "\nID_CSS='" + ID_CSS + '\'' +
+                "\n}";
+    }
+}	package src.AST.ComponentMetadata.HTML;
+
+import src.AST.Node;
+
+public class Attributes extends Node {
+    private String htmlString;
+    private String htmlName;
+    // For standard HTML attributes like 'src', 'class', etc.
+    private String binding;       // For Angular property bindings, like '[src]'
+    private String structuralDir; // For Angular structural directives, like '*ngFor', '*ngIf'
+    private String event;
+    // For Angular event bindings, like '(click)'
+
+    public Attributes(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
+
+    public String getHtmlString() {
+        return htmlString;
+    }
+
+    public void setHtmlString(String htmlString) {
+        this.htmlString = htmlString;
+    }
+
+    public String getHtmlName() {
+        return htmlName;
+    }
+
+    public void setHtmlName(String htmlName) {
+        this.htmlName = htmlName;
+    }
+
+    public String getBinding() {
+        return binding;
+    }
+
+    public void setBinding(String binding) {
+        this.binding = binding;
+    }
+
+    public String getStructuralDir() {
+        return structuralDir;
+    }
+
+    public void setStructuralDir(String structuralDir) {
+        this.structuralDir = structuralDir;
+    }
+
+    public String getEvent() {
+        return event;
+    }
+
+    public void setEvent(String event) {
+        this.event = event;
+    }
+
+    // ... Getters and setters for each attribute type
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("\nAttributes{");
+        if (htmlString != null) {
+            sb.append("\nhtmlAttribute='").append(htmlString).append('\'');
+        }
+        if (htmlName != null) {
+            sb.append("\nhtmlAttribute='").append(htmlName).append('\'');
+        }
+
+        if (binding != null) {
+            sb.append("\nbinding='").append(binding).append('\'');
+        }
+        if (structuralDir != null) {
+            sb.append("\nstructuralDir='").append(structuralDir).append('\'');
+        }
+        if (event != null) {
+            sb.append("\nevent='").append(event).append('\'');
+        }
+        sb.append("\n}");
+        return sb.toString();
+    }
+
+    public String generateHTML() {
+        // Standard attribute: name="value"
+        if (htmlName != null && htmlString != null) {
+            return htmlName + "=\"" + htmlString + "\"";
+        }
+        // Property binding like [src]="..."
+        if (binding != null) return binding;
+        // Structural directive like *ngFor="..."
+        if (structuralDir != null) return "*" + structuralDir;
+        // Event binding like (click)="..." -> onclick="handler();render();"
+        if (event != null) {
+            if (event.startsWith("(click)=")) {
+                String call = event.substring("(click)=".length());
+                return "onclick=" + call.substring(0, call.length()) + " render()\"";
+            }
+            return event;
+        }
+        // Fallback raw string (unlikely path)
+        if (htmlString != null) return htmlString;
+        return "";
+    }
+}package src.AST.ComponentMetadata.HTML;
+
+import src.AST.Node;
+
+public class ClosingTag extends Node {
+    String NAME_HTML;
+
+    public ClosingTag(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
+
+    public String getNAME_HTML() {
+        return NAME_HTML;
+    }
+
+    public void setNAME_HTML(String NAME_HTML) {
+        this.NAME_HTML = NAME_HTML;
+    }
+
+    public String generateHTML() {
+        if (NAME_HTML == null) return "";
+        return "</" + NAME_HTML + ">";
+    }
+
+    @Override
+    public String toString() {
+        return "\nClosingTag{" +
+                "\nNAME_HTML='" + NAME_HTML + '\'' +
+                "\n}";
+    }
+}package src.AST.ComponentMetadata.HTML;
+
+public interface Element {
+}
+package src.AST.ComponentMetadata.HTML;
+
+import src.AST.Node;
+
+public class HtmlNameElement extends Node implements Element {
+    String name;
+
+    public HtmlNameElement(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "\nHtmlNameElement{" +
+                "\nname='" + name + '\'' +
+                "\n}";
+    }
+
+    public String generateHTML() {
+        if (name == null) return "";
+        return name;
+    }
+}
+package src.AST.ComponentMetadata.HTML;
+
+import src.AST.Node;
+
+public class InterpolationElement extends Node implements Element {
+    private String value;
+
+    public InterpolationElement(int lineNumber, int columnNumber, String value) {
+        super(lineNumber, columnNumber);
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return "\nInterpolationElement{" +
+                "\nvalue='" + value + '\'' +
+                "\n}";
+    }
+
+    public String generateHTML() {
+        if (value == null) return "";
+        return "<span data-bind=\"" + value + "\"></span>";
+    }
+}
+package src.AST.ComponentMetadata.HTML;
+
+import src.AST.Node;
+import java.util.ArrayList;
+import java.util.List;
+
+public class OpeningTag extends Node {
+    private String tagName;
+    List<Attributes> attributes = new ArrayList<>();
+
+    public OpeningTag(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
+
+    public List<Attributes> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<Attributes> attributes) {
+        this.attributes = attributes;
+    }
+
+    public String getTagName() {
+        return tagName;
+    }
+
+    public void setTagName(String tagName) {
+        this.tagName = tagName;
+    }
+
+    public String generateHTML() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<");
+        if (tagName != null) {
+            sb.append(tagName);
+        }
+        if (attributes != null) {
+            for (Attributes attr : attributes) {
+                String rendered = attr.generateHTML();
+                if (!rendered.isEmpty()) {
+                    sb.append(" ").append(rendered);
+                }
+            }
+        }
+        sb.append(">");
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        if(attributes!=null){
+            return "\nOpeningTag{" +
+                    attributes +
+                    "\n}";
+        }
+        return "";
+    }
+}package src.AST.ComponentMetadata.HTML;
+
+import src.AST.Node;
+import java.util.ArrayList;
+import java.util.List;
+
+public class SelfClosingTag extends Node {
+    private String tagName;
+    List<Attributes> attributes = new ArrayList<>();
+
+    public SelfClosingTag(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
+
+    public List<Attributes> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<Attributes> attributes) {
+        this.attributes = attributes;
+    }
+
+    public String getTagName() { return tagName; }
+    public void setTagName(String tagName) { this.tagName = tagName; }
+
+    public String generateHTML() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<");
+        if (tagName != null) {
+            sb.append(tagName);
+        }
+        if (attributes != null) {
+            boolean first = true;
+            for (Attributes attr : attributes) {
+                String rendered = attr.generateHTML();
+                if (!rendered.isEmpty()) {
+                    sb.append(first ? " " : " ");
+                    sb.append(rendered);
+                    first = false;
+                }
+            }
+        }
+        sb.append(" />");
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "\nSelfClosingTag{" +
+                "\nattributes=" + attributes +
+                "\n}";
+    }
+}package src.AST.ComponentMetadata.HTML;
+
+import src.AST.Node;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TagElement extends Node implements Element {
+    private OpeningTag openingTag;
+    private List<Element> elements = new ArrayList<>();
+    private ClosingTag closingTag;
+    private SelfClosingTag selfClosingTag;
+
+    public TagElement(int lineNumber, int columnNumber) {
+        super(lineNumber, columnNumber);
+    }
+
+    public OpeningTag getOpeningTag() {
+        return openingTag;
+    }
+
+    public void setOpeningTag(OpeningTag openingTag) {
+        this.openingTag = openingTag;
+    }
+
+    public List<Element> getElements() {
+        return elements;
+    }
+
+    public void setElements(List<Element> elements) {
+        this.elements = elements;
+    }
+
+    public ClosingTag getClosingTag() {
+        return closingTag;
+    }
+
+    public void setClosingTag(ClosingTag closingTag) {
+        this.closingTag = closingTag;
+    }
+
+    public SelfClosingTag getSelfClosingTag() {
+        return selfClosingTag;
+    }
+
+    public void setSelfClosingTag(SelfClosingTag selfClosingTag) {
+        this.selfClosingTag = selfClosingTag;
+    }
+
+    public String generateHTML() {
+        StringBuilder sb = new StringBuilder();
+        if (selfClosingTag != null) {
+            sb.append(selfClosingTag.generateHTML());
+        } else if (openingTag != null) {
+            sb.append(openingTag.generateHTML());
+            if (elements != null) {
+                for (Element el : elements) {
+                    if (el instanceof TagElement) {
+                        sb.append(((TagElement) el).generateHTML());
+                    } else if (el instanceof HtmlNameElement) {
+                        sb.append(((HtmlNameElement) el).generateHTML());
+                    } else if (el instanceof InterpolationElement) {
+                        sb.append(((InterpolationElement) el).generateHTML());
+                    }
+                }
+            }
+            if (closingTag != null) {
+                sb.append(closingTag.generateHTML());
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("\nTag{");
+
+        if (selfClosingTag != null) {
+            sb.append("\n").append(selfClosingTag);
+        } else if (openingTag != null) {
+            sb.append("\n").append(openingTag);
+
+            if (elements != null && !elements.isEmpty()) {
+                sb.append("\n").append(elements);
+            }
+
+            if (closingTag != null) {
+                sb.append("\n").append(closingTag);
+            }
+        }
+
+        sb.append("\n}");
+        return sb.toString();
+    }
+}
+package src.AST.classes;
+
+import src.AST.Node;
+import java.util.List;
+
+public class ClassDecl extends Node {
+    private final boolean isExported;
+    private final String name;
+    private final String superClass;
+    private final List<String> interfaces;
+    private final List<ClassMember> members;
+
+    public ClassDecl(int lineNumber, int columnNumber, boolean isExported, String name, String superClass, List<String> interfaces, List<ClassMember> members) {
+        super(lineNumber, columnNumber);
+        this.isExported = isExported;
+        this.name = name;
+        this.superClass = superClass;
+        this.interfaces = interfaces;
+        this.members = members;
+    }
+
+    public boolean isExported() {
+        return isExported;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getSuperClass() {
+        return superClass;
+    }
+
+    public List<String> getInterfaces() {
+        return interfaces;
+    }
+
+    public List<ClassMember> getMembers() {
+        return members;
+    }
+
+    public String generateHTML() { return ""; }
+
+    public String generateCSS() { return ""; }
+
+    public String generateJS() {
+        StringBuilder sb = new StringBuilder();
+        // Emit fields as let declarations, methods as functions
+        if (members != null) {
+            for (ClassMember member : members) {
+                if (member instanceof FieldDecl) {
+                    FieldDecl f = (FieldDecl) member;
+                    sb.append(f.generateJS()).append("\n");
+                } else if (member instanceof MethodDecl) {
+                    MethodDecl m = (MethodDecl) member;
+                    sb.append(m.generateJS());
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (isExported) sb.append("export ");
+        sb.append("class ").append(name);
+
+        if (superClass != null) {
+            sb.append(" extends ").append(superClass);
+        }
+
+        if (interfaces != null && !interfaces.isEmpty()) {
+            sb.append(" implements ").append(String.join(", ", interfaces));
+        }
+
+        sb.append(" {\n");
+
+        for (ClassMember member : members) {
+            sb.append("  ").append(member.toString()).append("\n");
+        }
+
+        sb.append("}");
+        return sb.toString();
+    }
+}package src.AST.classes;
+
+public interface ClassMember {
+}
+package src.AST.classes;
+
+import src.AST.Node;
+import src.AST.expression.Expression;
+
+public class FieldDecl extends Node implements ClassMember {
+    private final String accessModifier; // "public", "private", etc.
+    private final String name;
+    private final String type;
+    private final boolean isOptional;   // ?
+    private final boolean isRequired;   // !
+    private final Expression initializer;
+
+    public FieldDecl(int lineNumber, int columnNumber,
+            String accessModifier,
+            String name,
+            String type,
+            boolean isOptional,
+            boolean isRequired,
+            Expression initializer
+    ) {
+        super(lineNumber, columnNumber);
+        this.accessModifier = accessModifier;
+        this.name = name;
+        this.type = type;
+        this.isOptional = isOptional;
+        this.isRequired = isRequired;
+        this.initializer = initializer;
+    }
+
+    // Getters
+    public String getAccessModifier() { return accessModifier; }
+    public String getName() { return name; }
+    public String getType() { return type; }
+    public boolean isOptional() { return isOptional; }
+    public boolean isRequired() { return isRequired; }
+    public Expression getInitializer() { return initializer; }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        if (accessModifier != null) {
+            sb.append(accessModifier).append(" ");
+        }
+
+        sb.append(name);
+
+        if (isOptional) {
+            sb.append("?");
+        } else if (isRequired) {
+            sb.append("!");
+        }
+
+        sb.append(": ").append(type);
+
+        if (initializer != null) {
+            sb.append(" = ").append(initializer);
+        }
+
+        sb.append(";");
+
+        return sb.toString();
+    }
+
+    public String generateJS() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("window.").append(name);
+        if (initializer != null) {
+            sb.append(" = ").append(initializer.generateJS());
+        }
+        sb.append(";");
+        return sb.toString();
+    }
+}package src.AST.classes;
+
+import src.AST.Node;
+import src.AST.statement.Statement;
+
+import java.util.List;
+
+public class MethodDecl extends Node implements ClassMember {
+    private final String name;
+    private final String returnType;
+    private final List<Statement> body;
+
+
+    public MethodDecl(int lineNumber, int columnNumber, String name, String returnType, List<Statement> body) {
+        super(lineNumber, columnNumber);
+        this.name = name;
+        this.returnType = returnType;
+        this.body = body;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getReturnType() {
+        return returnType;
+    }
+    public List<Statement> getBody() {
+        return body;
+    }
+
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(name).append("(): ").append(returnType).append(" {\n");
+        for (Statement stmt : body) {
+            sb.append("    ").append(stmt.toString()).append("\n");
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    public String generateJS() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("function ").append(name).append("() {\n");
+        if (body != null) {
+            for (Statement stmt : body) {
+                if (stmt instanceof src.AST.statement.ExpressionStatement) {
+                    sb.append("  ").append(((src.AST.statement.ExpressionStatement) stmt).generateJS()).append("\n");
+                } else if (stmt instanceof src.AST.statement.BlockStatement) {
+                    // Inline nested blocks
+                    String block = ((src.AST.statement.BlockStatement) stmt).generateJS();
+                    for (String line : block.split("\n")) {
+                        if (!line.isEmpty()) sb.append("  ").append(line).append("\n");
+                    }
+                }
+            }
+        }
+        sb.append("  render();\n");
+        sb.append("}\n");
+        return sb.toString();
+    }
+}
+
+
+here is the parser 
+parser grammar AngularComponentParser;
+options { tokenVocab = AngularComponentLexer; }
+
+program
+    : importStmt* interfaceDecl? componentDecorator? classDecl? EOF
+    ;
+
+importStmt
+    : IMPORT LeftBrace ID RightBrace From STRING SemiColon
+    ;
+
+componentDecorator
+    : AT ID LeftParen componentMetadata RightParen
+    ;
+
+componentMetadata
+    : LeftBrace (metadataField Comma?)* RightBrace
+    ;
+
+metadataField
+    : Selector Colon STRING SemiColon?                                    # SelectorField
+    | TEMPLATE COLON_HTML BACKTICK_HTML  element* END_TEMPLATE            # TemplateField
+    | Styles COLON_CSS OPEN_LIST cssBody CLOSE_LIST Comma?                # StylesField
+    ;
+
+interfaceDecl
+    : Interface ID LeftBrace interfaceField* RightBrace
+    ;
+
+interfaceField
+    : ID Colon typeSpec SemiColon?
+    ;
+
+classDecl
+    : Export? Class ID
+      (Extends ID)?
+      (Implements ID (Comma ID)*)?
+      LeftBrace classMember* RightBrace
+    ;
+
+classMember
+    : fieldDecl
+    | methodDecl
+    | constructorDecl
+    ;
+
+fieldDecl
+    : (Public | Private | Protected)? ID (Bang | Question)? Colon typeSpec (EQUALS expression)? SemiColon
+    ;
+
+constructorDecl
+    : Constructor LeftParen parameterList? RightParen LeftBrace statement* RightBrace
+    ;
+
+methodDecl
+    : (Public | Private | Protected)? ID LeftParen parameterList? RightParen Colon typeSpec LeftBrace statement* RightBrace
+    ;
+
+parameterList
+    : parameter (Comma parameter)*
+    ;
+
+parameter
+    : (Public | Private | Protected)? ID Colon typeSpec
+    ;
+
+typeSpec
+    : primaryType (Pipe primaryType )*
+    ;
+
+primaryType
+    : ID (TAG_OPEN typeSpec TAG_CLOSE)?                             # GenericType
+    | ID LeftBracket RightBracket                                   # ArrayType
+    | functionType                                                  # FunctionTypee
+    | literalType                                                   # LiteralTypee
+    | LeftParen typeSpec RightParen                                 # GroupedType
+    ;
+
+functionType
+    : LeftParen parameterList? RightParen Arrow typeSpec
+    ;
+
+
+literalType
+    : STRING
+    | NUMBER
+    | True
+    | False
+    | Null
+    ;
+
+expression
+    : primaryExpr                                             # PrimaryExpression
+    | expression Dot ID                                       # PropertyAccessExpression
+    | expression LeftParen argumentList? RightParen           # FunctionCallExpression
+    | expression Increment                                    # IncrementExpression
+    | expression op=(Multiply | Divide | Modulo) expression   # MultiplicativeExpression
+    | expression op=(Plus | Minus) expression                 # AdditiveExpression
+    | expression EQUALS expression                            # AssignmentExpression
+    ;
+
+primaryExpr
+    : This
+    | ID
+    | NUMBER
+    | STRING
+    | True
+    | False
+    | Null
+    | TEMPLATE_STRING
+    | LeftParen expression RightParen
+    | arrayLiteralExpression
+    | objectLiteralExpression
+    ;
+
+arrayLiteralExpression
+    : LeftBracket (expression (Comma expression)*)? RightBracket
+    ;
+
+objectLiteralExpression
+    : LeftBrace (objectLiteralPair (Comma? objectLiteralPair)* Comma?)? RightBrace Comma?
+    ;
+
+objectLiteralPair
+    : ID Colon expression
+    ;
+
+argumentList
+    : expression (Comma expression)*
+    ;
+
+statement
+    : expressionStatement
+    | blockStatement
+    ;
+
+blockStatement
+    : LeftBrace statement* RightBrace
+    ;
+
+expressionStatement
+    : expression SemiColon
+    ;
+
+
+
+
+
+
+    element
+        : tag                                                   # TagElement
+        | NAME_HTML (COLON_HTML)?                               # HtmlName
+        | interpolation                                         # InterpolationElement
+        ;
+
+    tag
+        : openingTag element* closingTag
+        | selfClosingTag
+        ;
+
+    openingTag
+        : TAG_OPEN_START_HTML attributes* TAG_CLOSE_END_HTML
+        ;
+
+    closingTag
+        : TAG_CLOSE_START_HTML NAME_HTML TAG_CLOSE_END_HTML
+        ;
+
+    selfClosingTag
+        : TAG_OPEN_START_HTML attributes* TAG_END_HTML
+        ;
+
+    attributes
+        : NAME_HTML ATTRIBUTE_EQUALS_HTML STRING_HTML                   # RegularAttribute
+        | STRUCTURAL_DIR_HTML ATTRIBUTE_EQUALS_HTML STRING_HTML         # StructuralDirectiveAttribute
+        | BINDING_HTML ATTRIBUTE_EQUALS_HTML STRING_HTML                # PropertyBindingAttribute
+        | EVENT_BINDING_HTML ATTRIBUTE_EQUALS_HTML STRING_HTML          # EventBindingAttribute
+        ;
+
+
+    interpolation
+        : INTERPOLATION_START_HTML NAME_HTML INTERPOLATION_END_HTML
+        ;
+
+
+    cssBody
+        : BACKTICK_CSS cssObjects BACKTICK_CSS COMMA_CSS?               # CssBodyContent
+        ;
+
+    cssObjects
+        : csselement? (COMMA_CSS? csselement)*                          # CssObjectList
+        ;
+
+    csselement
+        : DOT_CSS ID_CSS+ LBRACE_CSS bodyelement+ RBRACE_CSS            # CssRule
+        ;
+
+    bodyelement
+        : ID_CSS COLON_CSS cssValue SEMICOLON_CSS                       # CssProperty
+        ;
+
+    cssValue
+        : (PERCENT | ID_CSS) (ID_CSS ID_CSS?)?                          # CssValueExpression
+        ;
+
+
+
+here is the visitor 
+package src.visitors;
+
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
+import src.AST.*;
+import src.AST.ComponentMetadata.CSS.*;
+import src.AST.ComponentMetadata.ComponentMetadata;
+import src.AST.ComponentMetadata.HTML.*;
+import src.AST.ComponentMetadata.SelectorField;
+import src.AST.ComponentMetadata.StylesField;
+import src.AST.ComponentMetadata.TemplateField;
+import src.AST.classes.ClassDecl;
+import src.AST.classes.ClassMember;
+import src.AST.classes.FieldDecl;
+import src.AST.classes.MethodDecl;
+import src.AST.expression.*;
+import src.AST.statement.ExpressionStatement;
+import src.AST.statement.Statement;
+import src.AST.statement.BlockStatement;
+import src.antlr4.AngularComponentLexer;
+import src.antlr4.AngularComponentParser;
+import src.antlr4.AngularComponentParserBaseVisitor;
+import src.symbolTable.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
+
+    private final SymbolTable globalScope = new SymbolTable();
+    private SymbolTable currentScope = globalScope;
+
+    public SymbolTable getGlobalScope() {
+        return globalScope;
+    }
+
+    @Override
+    public Object visitProgram(AngularComponentParser.ProgramContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        Program program = new Program(line, col);
+
+        // Add all imports
+        for (AngularComponentParser.ImportStmtContext importCtx : ctx.importStmt()) {
+            ImportStmt importStmt = (ImportStmt) visit(importCtx);
+            program.addImport(importStmt);
+        }
+
+        // Add interface if present
+        if (ctx.interfaceDecl() != null) {
+            InterfaceDecl interfaceDecl = (InterfaceDecl) visit(ctx.interfaceDecl());
+            program.addInterface(interfaceDecl);
+        }
+
+        // Add component if present
+        if (ctx.componentDecorator() != null) {
+            ComponentDecorator component = (ComponentDecorator) visit(ctx.componentDecorator());
+            program.addComponent(component);
+        }
+
+        // Add class if present
+        if (ctx.classDecl() != null) {
+            ClassDecl classDecl = (ClassDecl) visit(ctx.classDecl());
+            program.addClass(classDecl);
+        }
+
+        return program;    }
+
+    @Override
+    public Object visitImportStmt(AngularComponentParser.ImportStmtContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String lib = ctx.ID().getText();
+        String from = ctx.STRING().getText();
+
+        // Remove surrounding quotes
+        from = from.substring(1, from.length() - 1);
+        return new ImportStmt(line, col, lib , from) ;
+    }
+
+    @Override
+    public Object visitComponentDecorator(AngularComponentParser.ComponentDecoratorContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String componentName = ctx.ID().getText();
+
+        AngularComponentParser.ComponentMetadataContext metadataCtx = ctx.componentMetadata();
+
+
+        // Build and return AST node
+        List<ComponentMetadata> metadataList = new ArrayList<>();
+
+        for (AngularComponentParser.MetadataFieldContext fieldCtx : metadataCtx.metadataField()) {
+            if (fieldCtx instanceof AngularComponentParser.SelectorFieldContext) {
+                AngularComponentParser.SelectorFieldContext selectorCtx = (AngularComponentParser.SelectorFieldContext) fieldCtx;
+                metadataList.add(  (SelectorField) visitSelectorField(selectorCtx)  );
+
+            } else if (fieldCtx instanceof AngularComponentParser.TemplateFieldContext) {
+                AngularComponentParser.TemplateFieldContext templateCtx = (AngularComponentParser.TemplateFieldContext) fieldCtx;
+                metadataList.add((TemplateField) visitTemplateField(templateCtx));
+
+            } else if (fieldCtx instanceof AngularComponentParser.StylesFieldContext) {
+                AngularComponentParser.StylesFieldContext stylesCtx = (AngularComponentParser.StylesFieldContext) fieldCtx;
+                metadataList.add( (StylesField) visitStylesField( stylesCtx ) );
+            }
+        }
+
+        return new ComponentDecorator(line, col, componentName, metadataList); }
+
+    @Override
+    public Object visitComponentMetadata(AngularComponentParser.ComponentMetadataContext ctx) {
+        return super.visitComponentMetadata(ctx);
+    }
+
+    @Override
+    public Object visitSelectorField(AngularComponentParser.SelectorFieldContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String selectorValue = ctx.STRING().getText();
+        selectorValue = selectorValue.substring(1, selectorValue.length() - 1);
+
+        return new SelectorField(line, col, selectorValue);
+    }
+
+    @Override
+    public Object visitTemplateField(AngularComponentParser.TemplateFieldContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        TemplateField templateField = new TemplateField(line, col);
+        List<Element> elements = new ArrayList<>();
+
+        for (AngularComponentParser.ElementContext elementCtx : ctx.element()) {
+            Element element = (Element) visit(elementCtx);
+            elements.add(element);
+        }
+
+        templateField.setElement(elements);
+
+        // Clear HTML tag stack after template parsing
+        SymbolTable.clearHtmlTags();
+
+        return templateField;
+    }
+
+    @Override
+    public Object visitStylesField(AngularComponentParser.StylesFieldContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        CssBody cssBody = (CssBody) visit(ctx.cssBody());
+        return new StylesField(line, col, cssBody);
+    }
+
+    @Override
+    public Object visitInterfaceDecl(AngularComponentParser.InterfaceDeclContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String name = ctx.ID().getText();
+        List<InterfaceField> fields = new ArrayList<>();
+
+        for (AngularComponentParser.InterfaceFieldContext fieldCtx : ctx.interfaceField()) {
+            InterfaceField field = (InterfaceField) visit(fieldCtx);
+            fields.add(field);
+        }
+
+        return new InterfaceDecl(line, col, name, fields);
+    }
+
+    @Override
+    public Object visitInterfaceField(AngularComponentParser.InterfaceFieldContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String fieldName = ctx.ID().getText();
+        String fieldType = ctx.typeSpec().getText();
+        return new InterfaceField(line, col, fieldName, fieldType);
+    }
+
+    @Override
+    public Object visitClassDecl(AngularComponentParser.ClassDeclContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        boolean isExported = ctx.getChild(0).getText().equals("export");
+        String className = ctx.ID(0).getText();
+        String superClass = null;
+
+        if (ctx.getChildCount() > 3 && ctx.getChild(3).getText().equals("extends")) {
+            superClass = ctx.ID(1).getText();
+        }
+
+        // Semantic Check: Add class to scope (may throw unchecked exception)
+        ClassSymbol classSymbol = new ClassSymbol(className, superClass, isExported);
+        try {
+            currentScope.put(classSymbol); // May throw ItemAlreadyExistsException
+        } catch (ItemAlreadyExistsException ex) {
+            throw new RuntimeException(
+                "Duplicate class '" + className + "' at line " + line + ", column " + col, ex
+            );
+        }
+
+        SymbolTable.pushScope(classSymbol.getClassScope());
+        currentScope = classSymbol.getClassScope();
+
+        List<ClassMember> members = new ArrayList<>();
+        for (AngularComponentParser.ClassMemberContext memberCtx : ctx.classMember()) {
+            if (memberCtx.fieldDecl() != null) {
+                FieldDecl field = (FieldDecl) visitFieldDecl(memberCtx.fieldDecl());
+                members.add(field);
+            } else if (memberCtx.methodDecl() != null) {
+                MethodDecl method = (MethodDecl) visitMethodDecl(memberCtx.methodDecl());
+                members.add(method);
+            }
+        }
+
+        SymbolTable.popScope();
+        currentScope = SymbolTable.getCurrentScope();
+
+        return new ClassDecl(line, col, isExported, className, superClass, null, members);
+    }
+
+    @Override
+    public Object visitClassMember(AngularComponentParser.ClassMemberContext ctx) {
+        return super.visitClassMember(ctx);
+    }
+
+    @Override
+    public Object visitFieldDecl(AngularComponentParser.FieldDeclContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String accessModifier = ctx.getChild(0) != null ? ctx.getChild(0).getText() : null;
+        String name = ctx.ID().getText();
+        String type = ctx.typeSpec().getText();
+        boolean isOptional = false;
+        boolean isRequired = false;
+
+        Expression initializer = null;
+        if (ctx.expression() != null) {
+            initializer = (Expression) visitExpression(ctx.expression());
+        }
+
+        // Semantic Check: Add field to current scope
+        FieldSymbol fieldSymbol = new FieldSymbol(name, type, accessModifier);
+        try {
+            currentScope.put(fieldSymbol); // may throw ItemAlreadyExistsException
+        } catch (ItemAlreadyExistsException ex) {
+            throw new RuntimeException(
+                "Duplicate field name '" + name + "' at line " + line + ", column " + col, ex
+            );
+        }
+
+        return new FieldDecl(line, col, accessModifier, name, type, isOptional, isRequired, initializer);
+
+    }
+
+
+
+    @Override
+    public Object visitConstructorDecl(AngularComponentParser.ConstructorDeclContext ctx) {
+        return super.visitConstructorDecl(ctx);
+    }
+
+    @Override
+    public Object visitMethodDecl(AngularComponentParser.MethodDeclContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String methodName = ctx.ID().getText();
+        String returnType = ctx.typeSpec() != null ? ctx.typeSpec().getText() : "void";
+
+        // Create symbol and insert into current scope
+        MethodSymbol methodSymbol = new MethodSymbol(methodName, returnType);
+        try {
+            currentScope.put(methodSymbol); // May throw ItemAlreadyExistsException
+            SymbolTable.pushScope(methodSymbol.getMethodScope());
+            currentScope = methodSymbol.getMethodScope();
+
+            // Visit method body
+            List<Statement> body = new ArrayList<>();
+            for (AngularComponentParser.StatementContext stmtCtx : ctx.statement()) {
+                Statement stmt = (Statement) visitStatement(stmtCtx);
+                if (stmt != null) {
+                    body.add(stmt);
+                }
+            }
+
+            // Exit method scope
+            currentScope = SymbolTable.getCurrentScope().getParent();
+            SymbolTable.popScope();
+
+            return new MethodDecl(line, col, methodName, returnType, body);
+
+        } catch (ItemAlreadyExistsException ex) {
+            throw new RuntimeException(
+                "Duplicate method name '" + methodName + "' at line " + line + ", column " + col, ex
+            );
+        }
+    }
+
+    @Override
+    public Object visitParameterList(AngularComponentParser.ParameterListContext ctx) {
+        return super.visitParameterList(ctx);
+    }
+
+    @Override
+    public Object visitParameter(AngularComponentParser.ParameterContext ctx) {
+        return super.visitParameter(ctx);
+    }
+
+    @Override
+    public Object visitTypeSpec(AngularComponentParser.TypeSpecContext ctx) {
+        return super.visitTypeSpec(ctx);
+    }
+
+    @Override
+    public Object visitGenericType(AngularComponentParser.GenericTypeContext ctx) {
+        return super.visitGenericType(ctx);
+    }
+
+    @Override
+    public Object visitArrayType(AngularComponentParser.ArrayTypeContext ctx) {
+        return super.visitArrayType(ctx);
+    }
+
+    @Override
+    public Object visitFunctionTypee(AngularComponentParser.FunctionTypeeContext ctx) {
+        return super.visitFunctionTypee(ctx);
+    }
+
+    @Override
+    public Object visitLiteralTypee(AngularComponentParser.LiteralTypeeContext ctx) {
+        return super.visitLiteralTypee(ctx);
+    }
+
+    @Override
+    public Object visitGroupedType(AngularComponentParser.GroupedTypeContext ctx) {
+        return super.visitGroupedType(ctx);
+    }
+
+    @Override
+    public Object visitFunctionType(AngularComponentParser.FunctionTypeContext ctx) {
+        return super.visitFunctionType(ctx);
+    }
+
+    @Override
+    public Object visitLiteralType(AngularComponentParser.LiteralTypeContext ctx) {
+        return super.visitLiteralType(ctx);
+    }
+
+    public Object visitExpression(AngularComponentParser.ExpressionContext ctx) {
+        if (ctx instanceof AngularComponentParser.PrimaryExpressionContext) {
+            return visitPrimaryExpression((AngularComponentParser.PrimaryExpressionContext) ctx);
+
+        } else if (ctx instanceof AngularComponentParser.PropertyAccessExpressionContext) {
+            return visitPropertyAccessExpression((AngularComponentParser.PropertyAccessExpressionContext) ctx);
+
+        } else if (ctx instanceof AngularComponentParser.FunctionCallExpressionContext) {
+            return visitFunctionCallExpression((AngularComponentParser.FunctionCallExpressionContext) ctx);
+
+        } else if (ctx instanceof AngularComponentParser.AssignmentExpressionContext) {
+            return visitAssignmentExpression((AngularComponentParser.AssignmentExpressionContext) ctx);
+        }
+        // Add more cases as needed
+        throw new UnsupportedOperationException("Unsupported expression type: " + ctx.getClass().getSimpleName());
+    }
+
+    @Override
+    public Object visitAdditiveExpression(AngularComponentParser.AdditiveExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        Expression left = (Expression) visit(ctx.expression(0));
+        Expression right = (Expression) visit(ctx.expression(1));
+        String operator = ctx.op.getText();
+        return new AdditiveExpression(line, col, left, right, operator);
+    }
+
+    @Override
+    public Object visitPrimaryExpression(AngularComponentParser.PrimaryExpressionContext ctx) {
+        return visitPrimaryExpr(ctx.primaryExpr());
+    }
+
+
+    @Override
+    public Object visitAssignmentExpression(AngularComponentParser.AssignmentExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        Expression left = (Expression) visit(ctx.expression(0));
+        Expression right = (Expression) visit(ctx.expression(1));
+        return new AssignmentExpression(line, col, left, right);
+    }
+
+    @Override
+    public Object visitIncrementExpression(AngularComponentParser.IncrementExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        Expression expr = (Expression) visit(ctx.expression());
+        boolean isPostfix = ctx.Increment() != null && ctx.Increment().getText().equals("++");
+        return new IncrementExpression(line, col, expr, isPostfix);
+    }
+
+    @Override
+    public Object visitPropertyAccessExpression(AngularComponentParser.PropertyAccessExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        Expression object = (Expression) visit(ctx.expression());
+        String property = ctx.ID().getText();
+        return new PropertyAccessExpression(line, col, object, property);
+    }
+
+    @Override
+    public Object visitMultiplicativeExpression(AngularComponentParser.MultiplicativeExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        Expression left = (Expression) visit(ctx.expression(0));
+        Expression right = (Expression) visit(ctx.expression(1));
+        String operator = ctx.op.getText();
+        return new MultiplicativeExpression(line, col, left, right, operator);
+    }
+
+    @Override
+    public Object visitFunctionCallExpression(AngularComponentParser.FunctionCallExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        Expression function = (Expression) visit(ctx.expression());
+        List<Expression> arguments = new ArrayList<>();
+        if (ctx.argumentList() != null) {
+            for (AngularComponentParser.ExpressionContext argCtx : ctx.argumentList().expression()) {
+                arguments.add((Expression) visit(argCtx));
+            }
+        }
+        return new FunctionCallExpression(line, col, function, arguments);
+    }
+
+    @Override
+    public Object visitPrimaryExpr(AngularComponentParser.PrimaryExprContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        PrimaryExpression result = new PrimaryExpression(line, col);
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            ParseTree child = ctx.getChild(i);
+
+            // Case: THIS
+            if (child instanceof TerminalNode && child.getText().equals("this")) {
+                Expression expr = new Expression(line, col);
+                expr.setId("this");
+                result.setExpression(expr);
+                return result;
+            }
+
+            // Case: ID (variable name, identifier)
+            if (child instanceof TerminalNode && ((TerminalNode) child).getSymbol().getType() == AngularComponentLexer.ID) {
+                Expression expr = new Expression(line, col);
+                expr.setId(child.getText());
+                result.setExpression(expr);
+                return result;
+            }
+
+            // Case: NUMBER
+            if (child instanceof TerminalNode && ((TerminalNode) child).getSymbol().getType() == AngularComponentLexer.NUMBER) {
+                Expression expr = new Expression(line, col);
+                expr.setId(child.getText());
+                result.setExpression(expr);
+                return result;
+            }
+
+            // Case: STRING
+            if (child instanceof TerminalNode && ((TerminalNode) child).getSymbol().getType() == AngularComponentLexer.STRING) {
+                Expression expr = new Expression(line, col);
+                expr.setId(child.getText());
+                result.setExpression(expr);
+                return result;
+            }
+
+            // Case: BOOLEAN (true / false)
+            if (child instanceof TerminalNode && (
+                    child.getText().equals("true") || child.getText().equals("false"))) {
+                Expression expr = new Expression(line, col);
+                expr.setId(child.getText());
+                result.setExpression(expr);
+                return result;
+            }
+
+            // Case: NULL
+            if (child instanceof TerminalNode && child.getText().equals("null")) {
+                Expression expr = new Expression(line, col);
+                expr.setId("null");
+                result.setExpression(expr);
+                return result;
+            }
+
+            // Case: TEMPLATE_STRING
+            if (child instanceof TerminalNode && ((TerminalNode) child).getSymbol().getType() == AngularComponentLexer.TEMPLATE_STRING) {
+                Expression expr = new Expression(line, col);
+                expr.setId(child.getText());
+                result.setExpression(expr);
+                return result;
+            }
+
+            // Case: '(' expression ')'
+            if (child instanceof AngularComponentParser.ExpressionContext) {
+                Expression inner = (Expression) visit(child);
+                result.setExpression(inner);
+                result.setOp(null); // or setOp("paren") if needed
+                return result;
+            }
+
+            if (child instanceof AngularComponentParser.ArrayLiteralExpressionContext) {
+                ArrayLiteralExpression arrayExpr = (ArrayLiteralExpression) visitArrayLiteralExpression(
+                        (AngularComponentParser.ArrayLiteralExpressionContext) child
+                );
+                result.setArrayLiteralExpression(arrayExpr);
+                return result;
+            }
+
+
+            // Case: objectLiteralExpression
+            if (child instanceof AngularComponentParser.ObjectLiteralExpressionContext) {
+                AngularComponentParser.ObjectLiteralExpressionContext objCtx =
+                        (AngularComponentParser.ObjectLiteralExpressionContext) child;
+
+                ObjectLiteralExpression expr = (ObjectLiteralExpression) visitObjectLiteralExpression(objCtx);
+                result.setObjectLiteralExpression(expr); // if applicable
+                return result;
+            }
+        }
+        // Fallback
+        return result;
+    }
+
+    @Override
+    public Object visitArrayLiteralExpression(AngularComponentParser.ArrayLiteralExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        List<Expression> elements = new ArrayList<>();
+        if (ctx.expression() != null) {
+            for (AngularComponentParser.ExpressionContext exprCtx : ctx.expression()) {
+                elements.add((Expression) visit(exprCtx));
+            }
+        }
+        return new ArrayLiteralExpression(line, col, elements);
+    }
+
+    @Override
+    public Object visitObjectLiteralExpression(AngularComponentParser.ObjectLiteralExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        List<ObjectLiteralPair> pairs = new ArrayList<>();
+        if (ctx.objectLiteralPair() != null) {
+            for (AngularComponentParser.ObjectLiteralPairContext pairCtx : ctx.objectLiteralPair()) {
+                pairs.add((ObjectLiteralPair) visitObjectLiteralPair(pairCtx));
+            }
+        }
+        return new ObjectLiteralExpression(line, col, pairs);
+    }
+
+    @Override
+    public Object visitObjectLiteralPair(AngularComponentParser.ObjectLiteralPairContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String key = ctx.ID().getText();
+        Expression value = (Expression) visit(ctx.expression());
+        return new ObjectLiteralPair(line, col, key, value);
+    }
+
+    @Override
+    public Object visitArgumentList(AngularComponentParser.ArgumentListContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        List<Expression> arguments = new ArrayList<>();
+        for (AngularComponentParser.ExpressionContext exprCtx : ctx.expression()) {
+            arguments.add((Expression) visit(exprCtx));
+        }
+        return new ArgumentList(line, col, arguments);
+    }
+
+    @Override
+    public Object visitStatement(AngularComponentParser.StatementContext ctx) {
+        if (ctx.expressionStatement() != null) {
+
+            return visitExpressionStatement(ctx.expressionStatement());
+        } else if (ctx.blockStatement() != null) {
+
+            return visitBlockStatement(ctx.blockStatement());
+        }
+        return null; // unreachable if grammar is correct
+    }
+
+    @Override
+    public Object visitBlockStatement(AngularComponentParser.BlockStatementContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        List<Statement> statements = new ArrayList<>();
+        for (AngularComponentParser.StatementContext stmtCtx : ctx.statement()) {
+            statements.add((Statement) visit(stmtCtx));
+        }
+        return new BlockStatement(line, col, statements);
+    }
+
+    @Override
+    public Object visitExpressionStatement(AngularComponentParser.ExpressionStatementContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        Expression expr1 = (Expression) visitExpression(ctx.expression());
+
+        return new ExpressionStatement(line, col, expr1);
+    }
+
+    @Override
+    public Object visitTagElement(AngularComponentParser.TagElementContext ctx) {
+        return visitTag(ctx.tag());
+    }
+
+    @Override
+    public Object visitHtmlName(AngularComponentParser.HtmlNameContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        HtmlNameElement htmlNameElement = new HtmlNameElement(line, col);
+        htmlNameElement.setName(ctx.NAME_HTML().getText());
+        return htmlNameElement;
+    }
+
+    @Override
+    public Object visitInterpolationElement(AngularComponentParser.InterpolationElementContext ctx) {
+        return visitInterpolation(ctx.interpolation());
+    }
+
+    @Override
+    public Object visitTag(AngularComponentParser.TagContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        TagElement tagElement = new TagElement(line, col);
+
+        // Case 1: Opening + Closing Tag
+        if (ctx.openingTag() != null && ctx.closingTag() != null) {
+            // Extract tag name from opening tag
+            String openingTagName = ctx.openingTag().TAG_OPEN_START_HTML().getText().substring(1); // remove '<'
+            // Push to stack
+            SymbolTable.pushHtmlTag(openingTagName);
+
+            // Build opening tag
+            OpeningTag openingTag = new OpeningTag(line, col);
+            openingTag.setTagName(openingTagName);
+            for (AngularComponentParser.AttributesContext attrCtx : ctx.openingTag().attributes()) {
+                Attributes attr = (Attributes) visit(attrCtx);
+                openingTag.getAttributes().add(attr);
+            }
+            tagElement.setOpeningTag(openingTag);
+
+            // Process inner elements
+            List<Element> innerElements = new ArrayList<>();
+            for (AngularComponentParser.ElementContext elementCtx : ctx.element()) {
+                Element innerElement = (Element) visit(elementCtx);
+                innerElements.add(innerElement);
+            }
+            tagElement.setElements(innerElements);
+
+            // Extract closing tag name
+            String closingTagName = ctx.closingTag().NAME_HTML().getText();
+
+            // Validate closing tag
+            try {
+                SymbolTable.popAndValidateHtmlTag(closingTagName);
+            } catch (TagMismatchException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+
+            // Build closing tag
+            ClosingTag closingTag = new ClosingTag(line, col);
+            closingTag.setNAME_HTML(closingTagName);
+            tagElement.setClosingTag(closingTag);
+        }
+        // Case 2: Self-closing tag
+        else if (ctx.selfClosingTag() != null) {
+            String selfName = ctx.selfClosingTag().TAG_OPEN_START_HTML().getText().substring(1);
+            SelfClosingTag selfClosingTag = new SelfClosingTag(line, col);
+            selfClosingTag.setTagName(selfName);
+            for (AngularComponentParser.AttributesContext attrCtx : ctx.selfClosingTag().attributes()) {
+                Attributes attr = (Attributes) visit(attrCtx);
+                selfClosingTag.getAttributes().add(attr);
+            }
+            tagElement.setSelfClosingTag(selfClosingTag);
+        }
+
+        return tagElement;
+    }
+
+    @Override
+    public Object visitOpeningTag(AngularComponentParser.OpeningTagContext ctx) {
+        return super.visitOpeningTag(ctx);
+    }
+
+    @Override
+    public Object visitClosingTag(AngularComponentParser.ClosingTagContext ctx) {
+        return super.visitClosingTag(ctx);
+    }
+
+    @Override
+    public Object visitSelfClosingTag(AngularComponentParser.SelfClosingTagContext ctx) {
+        return super.visitSelfClosingTag(ctx);
+    }
+
+    @Override
+    public Object visitRegularAttribute(AngularComponentParser.RegularAttributeContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String attributeName = ctx.NAME_HTML().getText();
+
+        if (!HtmlAttributeValidator.isValidHtmlAttribute(attributeName)) {
+            throw new RuntimeException(
+                "Invalid HTML attribute name: '" + attributeName + "' at line " + line + ", column " + col
+            );
+        }
+
+        Attributes attr = new Attributes(line, col);
+        attr.setHtmlName(attributeName);
+        String value = ctx.STRING_HTML().getText();
+        attr.setHtmlString(value.substring(1, value.length() - 1)); // Remove quotes
+        return attr;
+    }
+
+
+    @Override
+    public Object visitStructuralDirectiveAttribute(AngularComponentParser.StructuralDirectiveAttributeContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String directive = ctx.STRUCTURAL_DIR_HTML().getText();
+
+        if (!HtmlAttributeValidator.isValidHtmlAttribute("*" + directive)) {
+            throw new RuntimeException(
+                "Invalid structural directive: '" + directive + "' at line " + line + ", column " + col
+            );
+        }
+
+        Attributes attr = new Attributes(line, col);
+        attr.setStructuralDir(directive + "=" + ctx.STRING_HTML().getText());
+        return attr;
+    }
+
+    @Override
+    public Object visitPropertyBindingAttribute(AngularComponentParser.PropertyBindingAttributeContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        Attributes attr = new Attributes(line, col);
+        attr.setBinding(ctx.BINDING_HTML().getText() + "=" +
+                ctx.STRING_HTML().getText());
+        return attr;
+    }
+
+    @Override
+    public Object visitEventBindingAttribute(AngularComponentParser.EventBindingAttributeContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        Attributes attr = new Attributes(line, col);
+        attr.setEvent(ctx.EVENT_BINDING_HTML().getText() + "=" +
+                ctx.STRING_HTML().getText());
+        return attr;
+    }
+
+    @Override
+    public Object visitInterpolation(AngularComponentParser.InterpolationContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String interpolatedValue = ctx.NAME_HTML().getText();
+        return new InterpolationElement(line, col, interpolatedValue);
+    }
+
+    @Override
+    public Object visitCssBodyContent(AngularComponentParser.CssBodyContentContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        CssBody cssBody = new CssBody(line, col);
+        CssObjects cssObjects = (CssObjects) visit(ctx.cssObjects());
+        cssBody.setCssObjects(cssObjects);
+        return cssBody;
+    }
+
+    @Override
+    public Object visitCssObjectList(AngularComponentParser.CssObjectListContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        CssObjects cssObjects = new CssObjects(line, col);
+        List<CssElement> elements = new ArrayList<>();
+
+        for (AngularComponentParser.CsselementContext elementCtx : ctx.csselement()) {
+            CssElement element = (CssElement) visit(elementCtx);
+            elements.add(element);
+        }
+
+        cssObjects.setCssElementlist(elements);
+        return cssObjects;
+    }
+
+    @Override
+    public Object visitCssRule(AngularComponentParser.CssRuleContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        CssElement cssElement = new CssElement(line, col);
+        // Build selector: rule starts with '.' followed by one or more ID_CSS tokens
+        StringBuilder selectorBuilder = new StringBuilder();
+        selectorBuilder.append(".");
+        if (!ctx.ID_CSS().isEmpty()) {
+            // Combine tokens without spaces to form class selector (e.g., .container)
+            for (int i = 0; i < ctx.ID_CSS().size(); i++) {
+                selectorBuilder.append(ctx.ID_CSS(i).getText()+" ");
+            }
+        }
+        cssElement.setSelector(selectorBuilder.toString());
+        List<CssElementBody> elementBodies = new ArrayList<>();
+
+        for (AngularComponentParser.BodyelementContext bodyCtx : ctx.bodyelement()) {
+            CssElementBody elementBody = (CssElementBody) visit(bodyCtx);
+            elementBodies.add(elementBody);
+        }
+
+        cssElement.setBodyCssElements(elementBodies);
+        return cssElement;
+    }
+
+    @Override
+    public Object visitCssProperty(AngularComponentParser.CssPropertyContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        String propertyName = ctx.ID_CSS().getText();
+
+        if (!HtmlAttributeValidator.isValidCssProperty(propertyName)) {
+            throw new RuntimeException(
+                "Invalid CSS property: '" + propertyName + "' at line " + line + ", column " + col
+            );
+        }
+
+        CssElementBody elementBody = new CssElementBody(line, col);
+        elementBody.setPropertyName(propertyName);
+
+        CssValue cssValue = (CssValue) visit(ctx.cssValue());
+        elementBody.setCssValue(cssValue);
+
+        return elementBody;
+    }
+
+    @Override
+    public Object visitCssValueExpression(AngularComponentParser.CssValueExpressionContext ctx) {
+        int line = ctx.getStart().getLine();
+        int col = ctx.getStart().getCharPositionInLine();
+        CssValue cssValue = new CssValue(line, col);
+        List<String> values = new ArrayList<>();
+
+        if (ctx.PERCENT() != null) {
+            values.add(ctx.PERCENT().getText());
+        }
+
+        for (TerminalNode id : ctx.ID_CSS()) {
+            values.add(id.getText());
+        }
+
+        cssValue.setID_CSS(values);
+        return cssValue;
+    }
+}
+
+
+
+package src;
+
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import src.antlr4.AngularComponentLexer;
+import src.antlr4.AngularComponentParser;
+import src.AST.Program;
+import src.visitors.MyAngularVisitor;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static org.antlr.v4.runtime.CharStreams.fromFileName;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            String source = "Files/Text File.txt";
+            CharStream cs = fromFileName(source);
+            AngularComponentLexer lexer = new AngularComponentLexer(cs);
+            CommonTokenStream token = new CommonTokenStream(lexer);
+            AngularComponentParser parser = new AngularComponentParser(token);
+            ParseTree tree = parser.program();
+
+            MyAngularVisitor firstScan = new MyAngularVisitor();
+            Program program = (Program) firstScan.visit(tree);
+
+            System.out.println("-------------------------program------------------------" + "\n" + program);
+
+            String generatedCode = program.generateCode();
+            System.out.println("-------------------------generateCode------------------------" + "\n" + generatedCode);
+
+            // Write to generatedCode.html file
+            writeToFile("index.html", generatedCode);
+            System.out.println("Successfully generated index.html");
+
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("An error occurred: " + e.getMessage());
+            e.printStackTrace(); // Optional: print stack trace for debugging
+        }
+    }
+
+
+    private static void writeToFile(String fileName, String content) throws IOException {
+        Path path = Paths.get(fileName);
+        byte[] bytes = content.getBytes();
+        Files.write(path, bytes);
+    }
+
+}

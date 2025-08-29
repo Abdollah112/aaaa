@@ -17,6 +17,11 @@ public class CssBody extends Node {
         this.cssObjects = cssObjects;
     }
 
+    public String generateCSS() {
+        if (cssObjects == null) return "";
+        return cssObjects.generateCSS();
+    }
+
     @Override
     public String toString() {
         return "\nCssBody{" +

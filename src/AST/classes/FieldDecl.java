@@ -62,4 +62,14 @@ public class FieldDecl extends Node implements ClassMember {
 
         return sb.toString();
     }
+
+    public String generateJS() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("window.").append(name);
+        if (initializer != null) {
+            sb.append(" = ").append(initializer.generateJS());
+        }
+        sb.append(";");
+        return sb.toString();
+    }
 }

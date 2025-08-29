@@ -2,10 +2,68 @@
 <html>
 <head>
 <style>
+.counter-container  {
+  text-align: center;;
+  margin-top: 50px;;
+}
+.count-display  {
+  color: #333;;
+}
+.button  {
+  padding: 10px;20px;;
+  font-size: 16px;;
+  cursor: pointer;;
+}
+.h2  {
+  color: #333;;
+}
 </style>
 </head>
 <body>
+<div class="counter-container"><h2>Counter</h2><p class="count-display"><span data-bind="count">{{count}}</span></p><button onclick="increment(); render();">Increase</button></div>
+<script>
+function render(){
+  // Handle data-binding
+  document.querySelectorAll('[data-bind]').forEach(function(node){
+    var key=node.getAttribute('data-bind');
+    if (typeof window[key] !== 'undefined') { 
+      node.textContent = window[key]; 
+    }
+  });
+  
+  // Handle *ngIf directives
+  document.querySelectorAll('[data-ng-if]').forEach(function(node){
+    var condition=node.getAttribute('data-ng-if');
+    node.style.display = eval(condition) ? 'block' : 'none';
+  });
+}
+// import { Component } from '@angular/core'
+window.count = 0;
+function increment() {
+  this.count = this.count + 1;
+  render();
+}
 
-<script></script>
+render();
+// Initialize dynamic content
+if (typeof initDynamicContent === 'function') {
+  initDynamicContent();
+}
+function render(){
+  document.querySelectorAll('[data-bind]').forEach(function(node){
+    var key=node.getAttribute('data-bind');
+    if (typeof window[key] !== 'undefined') { node.textContent = window[key]; }
+  });
+}
+// import { Component } from '@angular/core'
+window.count = 0;
+function increment() {
+  this.count = this.count + 1;
+  render();
+}
+
+render();
+
+</script>
 </body>
 </html>

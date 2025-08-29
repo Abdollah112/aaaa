@@ -15,6 +15,11 @@ public class ExpressionStatement extends Node implements Statement {
         return expression;
     }
 
+    public String generateJS() {
+        if (expression == null) return "";
+        return expression.generateJS() + ";";
+    }
+
     @Override
     public String toString() {
         return expression + ";";

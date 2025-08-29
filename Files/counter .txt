@@ -4,7 +4,8 @@ import { Component } from '@angular/core';
   selector: 'app-root',
   template: `
     <div class="counter-container">
-      <h2>Counter: {{ count }}</h2>
+      <h2>Counter</h2>
+      <p class="count-display">{{ count }}</p>
       <button (click)="increment()">Increase</button>
     </div>
   `,
@@ -12,6 +13,10 @@ import { Component } from '@angular/core';
     .counter-container {
       text-align: center;
       margin-top: 50px;
+    }
+
+    .count-display {
+      color: #333;
     }
 
     .button {

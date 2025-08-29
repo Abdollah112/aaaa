@@ -23,4 +23,9 @@ public class HtmlNameElement extends Node implements Element {
                 "\nname='" + name + '\'' +
                 "\n}";
     }
+
+    public String generateHTML() {
+        if (name == null) return "";
+        return name;
+    }
 }

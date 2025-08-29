@@ -18,11 +18,11 @@ import static org.antlr.v4.runtime.CharStreams.fromFileName;
 public class Main {
     public static void main(String[] args) {
         try {
-            String source = "Files/Text File.txt";
+            String source = "Files/counter .txt";
             CharStream cs = fromFileName(source);
             AngularComponentLexer lexer = new AngularComponentLexer(cs);
             CommonTokenStream token = new CommonTokenStream(lexer);
-            AngularComponentParser parser = new AngularComponentParser(token);
+            AngularComponentParser parser = new AngularComponentParser(token);  
             ParseTree tree = parser.program();
 
             MyAngularVisitor firstScan = new MyAngularVisitor();
@@ -33,7 +33,7 @@ public class Main {
             String generatedCode = program.generateCode();
             System.out.println("-------------------------generateCode------------------------" + "\n" + generatedCode);
 
-            // Write to index.html file
+            // Write to generatedCode.html file
             writeToFile("index.html", generatedCode);
             System.out.println("Successfully generated index.html");
 

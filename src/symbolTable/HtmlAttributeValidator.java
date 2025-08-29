@@ -16,7 +16,7 @@ public class HtmlAttributeValidator {
 
     private static final List<String> VALID_CSS_PROPERTIES = Arrays.asList(
             "display", "width", "height", "gap", "border-right", "border-bottom",
-            "list-style-type", "padding", "align-items", "cursor", "object-fit",
+            "list-style-type", "padding", "align-items", "cursor", "object-fit", "margin-top",
             "margin-bottom", "color", "background", "font-size", "text-align"
     );
 

@@ -75,7 +75,7 @@ interface Product {
 
 
 }
-
+  
 )
 export class AppComponent {
 
@@ -85,42 +85,42 @@ export class AppComponent {
       name: 'Apple iPhone 15 Pro',
       price: 999,
       type: 'Smartphone',
-      imageUrl: 'https://via.placeholder.com/150/0000FF/FFFFFF?text=iPhone+15+Pro',
+      imageUrl: 'https://s.abcnews.com/images/International/gty_temple_lb_150824_16x9_992.jpg?w=992',
     },
     {
       id: 2,
       name: 'Samsung Galaxy S23 Ultra',
       price: 1199,
       type: 'Smartphone',
-      imageUrl: 'https://via.placeholder.com/150/FF0000/FFFFFF?text=Galaxy+S23+Ultra',
+      imageUrl: 'https://s.abcnews.com/images/International/gty_temple_lb_150824_16x9_992.jpg?w=992',
     },
     {
       id: 3,
       name: 'Google Pixel 8 Pro',
       price: 899,
       type: 'Smartphone',
-      imageUrl: 'https://via.placeholder.com/150/008000/FFFFFF?text=Pixel+8+Pro',
+      imageUrl: 'https://s.abcnews.com/images/International/gty_temple_lb_150824_16x9_992.jpg?w=992',
     },
     {
       id: 4,
       name: 'OnePlus 11',
       price: 699,
       type: 'Smartphone',
-      imageUrl: 'https://via.placeholder.com/150/FFA500/FFFFFF?text=OnePlus+11',
+      imageUrl: 'https://s.abcnews.com/images/International/gty_temple_lb_150824_16x9_992.jpg?w=992',
     },
     {
       id: 5,
       name: 'Xiaomi 13 Pro',
       price: 799,
       type: 'Smartphone',
-      imageUrl: 'https://via.placeholder.com/150/800080/FFFFFF?text=Xiaomi+13+Pro',
+      imageUrl: 'https://s.abcnews.com/images/International/gty_temple_lb_150824_16x9_992.jpg?w=992',
     },
     {
       id: 6,
       name: 'Sony Xperia 1 V',
       price: 1299,
       type: 'Smartphone',
-      imageUrl: 'https://via.placeholder.com/150/FFC0CB/FFFFFF?text=Xperia+1+V',
+      imageUrl: 'https://s.abcnews.com/images/International/gty_temple_lb_150824_16x9_992.jpg?w=992',
     },
   ];
   selectedProduct: Product | null = null;

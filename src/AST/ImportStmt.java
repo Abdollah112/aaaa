@@ -21,4 +21,11 @@ public class ImportStmt extends Node {
     public String toString() {
         return "import { " + lib + " } from '" + from + "';";
     }
+
+    public String generateHTML() { return ""; }
+    public String generateCSS() { return ""; }
+    public String generateJS() {
+        if (lib == null || from == null) return "";
+        return "// import { " + lib + " } from '" + from + "'\n";
+    }
 }

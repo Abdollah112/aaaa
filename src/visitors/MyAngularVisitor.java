@@ -170,7 +170,7 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
         int line = ctx.getStart().getLine();
         int col = ctx.getStart().getCharPositionInLine();
         String fieldName = ctx.ID().getText();
-        String fieldType = ctx.typeSpec().getText(); // crude example — improve later
+        String fieldType = ctx.typeSpec().getText();
         return new InterfaceField(line, col, fieldName, fieldType);
     }
 
@@ -635,6 +635,7 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
 
             // Build opening tag
             OpeningTag openingTag = new OpeningTag(line, col);
+            openingTag.setTagName(openingTagName);
             for (AngularComponentParser.AttributesContext attrCtx : ctx.openingTag().attributes()) {
                 Attributes attr = (Attributes) visit(attrCtx);
                 openingTag.getAttributes().add(attr);
@@ -666,7 +667,9 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
         }
         // Case 2: Self-closing tag
         else if (ctx.selfClosingTag() != null) {
+            String selfName = ctx.selfClosingTag().TAG_OPEN_START_HTML().getText().substring(1);
             SelfClosingTag selfClosingTag = new SelfClosingTag(line, col);
+            selfClosingTag.setTagName(selfName);
             for (AngularComponentParser.AttributesContext attrCtx : ctx.selfClosingTag().attributes()) {
                 Attributes attr = (Attributes) visit(attrCtx);
                 selfClosingTag.getAttributes().add(attr);
@@ -788,6 +791,16 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
         int line = ctx.getStart().getLine();
         int col = ctx.getStart().getCharPositionInLine();
         CssElement cssElement = new CssElement(line, col);
+        // Build selector: rule starts with '.' followed by one or more ID_CSS tokens
+        StringBuilder selectorBuilder = new StringBuilder();
+        selectorBuilder.append(".");
+        if (!ctx.ID_CSS().isEmpty()) {
+            // Combine tokens without spaces to form class selector (e.g., .container)
+            for (int i = 0; i < ctx.ID_CSS().size(); i++) {
+                selectorBuilder.append(ctx.ID_CSS(i).getText()+" ");
+            }
+        }
+        cssElement.setSelector(selectorBuilder.toString());
         List<CssElementBody> elementBodies = new ArrayList<>();
 
         for (AngularComponentParser.BodyelementContext bodyCtx : ctx.bodyelement()) {
@@ -812,7 +825,7 @@ public class MyAngularVisitor extends AngularComponentParserBaseVisitor {
         }
 
         CssElementBody elementBody = new CssElementBody(line, col);
-        elementBody.setId_css(propertyName);
+        elementBody.setPropertyName(propertyName);
 
         CssValue cssValue = (CssValue) visit(ctx.cssValue());
         elementBody.setCssValue(cssValue);

@@ -24,4 +24,19 @@ public class ObjectLiteralExpression extends Expression {
                 .reduce((a, b) -> a + ", " + b)
                 .orElse("");
     }
+
+    @Override
+    public String generateJS() {
+        if (objectLiteralPairs == null || objectLiteralPairs.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (ObjectLiteralPair p : objectLiteralPairs) {
+            if (!first) sb.append(", ");
+            sb.append(p.generateJS());
+            first = false;
+        }
+        return sb.toString();
+    }
 }

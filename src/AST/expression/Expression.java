@@ -84,4 +84,19 @@ public class Expression extends Node {
         }
     }
 
+    // Default JS generation; subclasses can override
+    public String generateJS() {
+        if (primaryExpression != null) {
+            return primaryExpression.generateJS();
+        } else if (left != null && operator != null && right != null) {
+            return left.generateJS() + " " + operator + " " + right.generateJS();
+        } else if (left != null && operator != null && id != null) {
+            return left.generateJS() + operator + id;
+        } else if (id != null && argumentList != null) {
+            return id + "(" + (argumentList != null ? argumentList.generateJS() : "") + ")";
+        } else if (id != null) {
+            return id;
+        }
+        return "";
+    }
 }

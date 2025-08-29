@@ -3,20 +3,15 @@ package src.AST.ComponentMetadata.CSS;
 import src.AST.Node;
 
 public class CssElementBody extends Node {
-    String Id_css;
+    String propertyName;
     CssValue cssValue;
 
     public CssElementBody(int lineNumber, int columnNumber) {
         super(lineNumber, columnNumber);
     }
 
-    public String getId_css() {
-        return Id_css;
-    }
-
-    public void setId_css(String id_css) {
-        Id_css = id_css;
-    }
+    public String getPropertyName() { return propertyName; }
+    public void setPropertyName(String propertyName) { this.propertyName = propertyName; }
 
     public CssValue getCssValue() {
         return cssValue;
@@ -26,11 +21,21 @@ public class CssElementBody extends Node {
         this.cssValue = cssValue;
     }
 
+    public String generateCSS() {
+        StringBuilder sb = new StringBuilder();
+        if (propertyName != null) {
+            sb.append(propertyName).append(": ");
+            if (cssValue != null) sb.append(cssValue.generateCSS());
+            sb.append(";");
+        }
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         return "\nBodyelement{" +
-                "\nId_css='" + Id_css + '\'' +
-                ", \n=" + cssValue +
+                "\nproperty='" + propertyName + '\'' +
+                ", \nvalue=" + cssValue +
                 "\n}";
     }
 }

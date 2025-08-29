@@ -27,6 +27,35 @@ public class ComponentDecorator extends Node {
         this.componentMetadata = componentMetadata;
     }
 
+    public String generateHTML() {
+        StringBuilder sb = new StringBuilder();
+        if (componentMetadata != null) {
+            for (ComponentMetadata metadata : componentMetadata) {
+                if (metadata instanceof src.AST.ComponentMetadata.TemplateField) {
+                    sb.append(((src.AST.ComponentMetadata.TemplateField) metadata).generateHTML());
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    public String generateCSS() {
+        StringBuilder sb = new StringBuilder();
+        if (componentMetadata != null) {
+            for (ComponentMetadata metadata : componentMetadata) {
+                if (metadata instanceof src.AST.ComponentMetadata.StylesField) {
+                    sb.append(((src.AST.ComponentMetadata.StylesField) metadata).generateCSS());
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    public String generateJS() {
+        // Components may contribute JS later (e.g., lifecycle hooks). Empty for now.
+        return "";
+    }
+
     // === toString ===
     @Override
     public String toString() {
