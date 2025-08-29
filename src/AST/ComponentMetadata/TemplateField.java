@@ -25,7 +25,13 @@ public class TemplateField extends Node implements ComponentMetadata {
     public String generateHTML() {
         StringBuilder sb = new StringBuilder();
         if (element != null) {
+            Element previousElement = null;
             for (Element el : element) {
+                // Insert a space between consecutive text nodes at the root template level
+                if (previousElement instanceof HtmlNameElement && el instanceof HtmlNameElement) {
+                    sb.append(" ");
+                }
+
                 if (el instanceof TagElement) {
                     TagElement tag = (TagElement) el;
                     // Check if this tag has *ngFor directive
@@ -41,6 +47,8 @@ public class TemplateField extends Node implements ComponentMetadata {
                 } else if (el instanceof InterpolationElement) {
                     sb.append(((InterpolationElement) el).generateHTML());
                 }
+
+                previousElement = el;
             }
         }
         return sb.toString();
@@ -119,7 +127,13 @@ public class TemplateField extends Node implements ComponentMetadata {
 
         // Add inner elements
         if (tag.getElements() != null) {
+            Element previousElement = null;
             for (Element el : tag.getElements()) {
+                // Insert a space between consecutive text nodes inside the static tag template
+                if (previousElement instanceof HtmlNameElement && el instanceof HtmlNameElement) {
+                    sb.append(" ");
+                }
+
                 if (el instanceof TagElement) {
                     sb.append(((TagElement) el).generateHTML());
                 } else if (el instanceof HtmlNameElement) {
@@ -127,6 +141,8 @@ public class TemplateField extends Node implements ComponentMetadata {
                 } else if (el instanceof InterpolationElement) {
                     sb.append(((InterpolationElement) el).generateHTML());
                 }
+
+                previousElement = el;
             }
         }
 

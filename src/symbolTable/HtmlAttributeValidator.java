@@ -5,7 +5,7 @@ import java.util.List;
 
 public class HtmlAttributeValidator {
     private static final List<String> VALID_HTML_ATTRIBUTES = Arrays.asList(
-            "id", "class", "style", "title", "lang", "dir", "accesskey", "tabindex",
+            "id", "class", "style", "title", "lang", "dir", "accesskey", "tabindex", "onclick",
             // Common attributes
             "src", "alt", "href", "target", "rel", "type", "value", "name", "placeholder",
             // ARIA attributes
@@ -15,8 +15,8 @@ public class HtmlAttributeValidator {
     );
 
     private static final List<String> VALID_CSS_PROPERTIES = Arrays.asList(
-            "display", "width", "height", "gap", "border-right", "border-bottom",
-            "list-style-type", "padding", "align-items", "cursor", "object-fit", "margin-top",
+            "display", "width", "height", "gap", "border-right", "border-bottom", "margin",
+            "list-style-type", "padding", "align-items", "cursor", "object-fit", "margin-top", "onclick",
             "margin-bottom", "color", "background", "font-size", "text-align"
     );
 

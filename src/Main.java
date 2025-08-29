@@ -18,7 +18,7 @@ import static org.antlr.v4.runtime.CharStreams.fromFileName;
 public class Main {
     public static void main(String[] args) {
         try {
-            String source = "Files/counter .txt";
+            String source = "Files/ProductListApp   .txt";
             CharStream cs = fromFileName(source);
             AngularComponentLexer lexer = new AngularComponentLexer(cs);
             CommonTokenStream token = new CommonTokenStream(lexer);

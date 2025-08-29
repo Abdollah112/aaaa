@@ -53,7 +53,13 @@ public class TagElement extends Node implements Element {
         } else if (openingTag != null) {
             sb.append(openingTag.generateHTML());
             if (elements != null) {
+                Element previousElement = null;
                 for (Element el : elements) {
+                    // Insert a space between consecutive text nodes to preserve word boundaries
+                    if (previousElement instanceof HtmlNameElement && el instanceof HtmlNameElement) {
+                        sb.append(" ");
+                    }
+
                     if (el instanceof TagElement) {
                         sb.append(((TagElement) el).generateHTML());
                     } else if (el instanceof HtmlNameElement) {
@@ -61,6 +67,8 @@ public class TagElement extends Node implements Element {
                     } else if (el instanceof InterpolationElement) {
                         sb.append(((InterpolationElement) el).generateHTML());
                     }
+
+                    previousElement = el;
                 }
             }
             if (closingTag != null) {

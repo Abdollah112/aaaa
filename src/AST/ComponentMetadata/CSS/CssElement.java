@@ -31,7 +31,8 @@ public class CssElement extends Node {
     public String generateCSS() {
         StringBuilder sb = new StringBuilder();
         if (selector != null && !selector.isEmpty()) {
-            sb.append(selector).append(" {\n");
+            String cleanSelector = selector.trim();
+            sb.append(cleanSelector).append(" {\n");
             if (CssElementBodies != null) {
                 for (CssElementBody body : CssElementBodies) {
                     sb.append("  ").append(body.generateCSS()).append("\n");

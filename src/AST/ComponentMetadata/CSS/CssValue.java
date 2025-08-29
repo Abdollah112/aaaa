@@ -22,8 +22,11 @@ public class CssValue extends Node {
     public String generateCSS() {
         StringBuilder sb = new StringBuilder();
         if (ID_CSS != null) {
-            for (String line : ID_CSS) {
-                sb.append(line).append(";");
+            for (int i = 0; i < ID_CSS.size(); i++) {
+                String token = ID_CSS.get(i);
+                if (token == null) continue;
+                if (i > 0) sb.append(" ");
+                sb.append(token);
             }
         }
         return sb.toString();

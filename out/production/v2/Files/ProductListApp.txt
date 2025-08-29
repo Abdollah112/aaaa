@@ -1,0 +1,105 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  type: string;
+  imageUrl: string;
+}
+
+@Component({
+  selector: 'app-root',
+  styles: [
+      `
+        .container {
+          display: flex;
+          gap: 20px;
+        }
+        .product-list {
+          width: 30%;
+          border-right: 1px solid #ddd;
+          margin: 0 auto;
+        }
+        .product-list ul {
+          list-style-type: none;
+          padding: 0;
+        }
+        .product-list li {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px;
+          cursor: pointer;
+          border-bottom: 1px solid #ddd;
+        }
+        .product-list img {
+          width: 200px;
+          height: 200px;
+          object-fit: cover;
+        }
+        .product-details {
+          width: 70%;
+          padding: 10px;
+        }
+        .product-details img {
+          width: 200px;
+          height: 200px;
+          object-fit: cover;
+          margin-bottom: 20px;
+        }
+      `,
+    ],
+  template: `
+    <div class="container">
+      <div class="product-list">
+        <h3>Products</h3>
+        <ul>
+          <li>
+            <img src="https://s.abcnews.com/images/International/gty_temple_lb_150824_16x9_992.jpg?w=992" alt="Apple iPhone Pro" />
+            <p>Apple iPhone Pro</p>
+            <p>Price is thousand dollar </p>
+            <p>Type: Smartphone</p>
+          </li>
+          <li>
+            <img src="https://s.abcnews.com/images/International/gty_temple_lb_150824_16x9_992.jpg?w=992" alt="Samsung Galaxy  Ultra" />
+            <p>Samsung Galaxy  Ultra</p>
+            <p>Price is thousand dollar</p>
+            <p>Type: Smartphone</p>
+          </li>
+          <li>
+            <img src="https://s.abcnews.com/images/International/gty_temple_lb_150824_16x9_992.jpg?w=992" alt="Google Pixel  Pro" />
+            <p>Google Pixel  Pro</p>
+            <p>Price is thousand dollar</p>
+            <p>Type: Smartphone</p>
+          </li>
+          <li>
+            <img src="https://s.abcnews.com/images/International/gty_temple_lb_150824_16x9_992.jpg?w=992" alt="OnePlus" />
+            <p>OnePlus</p>
+            <p>Price is thousand dollar</p>
+            <p>Type: Smartphone</p>
+          </li>
+          <li>
+            <img src="https://s.abcnews.com/images/International/gty_temple_lb_150824_16x9_992.jpg?w=992" alt="Xiaomi  Pro" />
+            <p>Xiaomi  Pro</p>
+            <p>Price is thousand dollar</p>
+            <p>Type: Smartphone</p>
+          </li>
+          <li>
+            <img src="https://s.abcnews.com/images/International/gty_temple_lb_150824_16x9_992.jpg?w=992" alt="Sony Xperia V" />
+            <p>Sony Xperia V</p>
+            <p>Price is thousand dollar</p>
+            <p>Type: Smartphone</p>
+          </li>
+        </ul>
+      </div>
+      
+    </div>
+  `,
+
+}
+  
+)
+export class AppComponent {
+}

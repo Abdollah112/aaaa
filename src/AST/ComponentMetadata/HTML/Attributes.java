@@ -66,7 +66,6 @@ public class Attributes extends Node {
         if (htmlName != null) {
             sb.append("\nhtmlAttribute='").append(htmlName).append('\'');
         }
-
         if (binding != null) {
             sb.append("\nbinding='").append(binding).append('\'');
         }

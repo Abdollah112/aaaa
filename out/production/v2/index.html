@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.box {
+  width: 200px;
+  height: 200px;
+  margin-bottom: 12px;
+}
+.controls button {
+  padding: 6px 10px;
+}
+</style>
+</head>
+<body>
+<div class="box" id="box"></div><div class="controls"><button onclick="document.getElementById('box').style.background='black'; render();">Red</button><button onclick="document.getElementById('box').style.background='green'; render();">Green</button><button onclick="document.getElementById('box').style.background='blue'; render();">Blue</button></div>
+<script>
+function render(){
+  // Handle data-binding
+  document.querySelectorAll('[data-bind]').forEach(function(node){
+    var key=node.getAttribute('data-bind');
+    if (typeof window[key] !== 'undefined') { 
+      node.textContent = window[key]; 
+    }
+  });
+  
+  // Handle *ngIf directives
+  document.querySelectorAll('[data-ng-if]').forEach(function(node){
+    var condition=node.getAttribute('data-ng-if');
+    node.style.display = eval(condition) ? 'block' : 'none';
+  });
+}
+// import { Component } from '@angular/core'
+
+render();
+// Initialize dynamic content
+if (typeof initDynamicContent === 'function') {
+  initDynamicContent();
+}
+function render(){
+  document.querySelectorAll('[data-bind]').forEach(function(node){
+    var key=node.getAttribute('data-bind');
+    if (typeof window[key] !== 'undefined') { node.textContent = window[key]; }
+  });
+}
+// import { Component } from '@angular/core'
+
+render();
+
+</script>
+</body>
+</html>
